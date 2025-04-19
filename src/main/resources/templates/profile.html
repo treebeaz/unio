@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Профиль</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h2>Ваш профиль</h2>
+        <p>Логин: <span th:text="${user.username}"></span></p>
+<!--        <a href="/logout">Выйти</a>-->
+    </div>
+</body>
