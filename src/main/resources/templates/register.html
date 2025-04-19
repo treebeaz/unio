@@ -3,24 +3,30 @@
 <head>
     <title>Регистрация</title>
     <link rel="stylesheet" href="/css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
-    <div class="container">
-        <h2>Регистрация</h2>
+<header class="header">
+    <a href="/" class="btn btn-primary">На главную</a>
+</header>
 
-        <!-- Блок для вывода ошибки -->
-        <div th:if="${not #strings.isEmpty(error)}" class="error-message">
-            <span th:text="${error}"></span>
-        </div>
+<main class="container">
+    <h2 style="text-align: center; margin-bottom: 1.5rem;">Регистрация</h2>
 
-        <form th:action="@{/register}" method="post">
-            <input type="text" name="username" placeholder="Логин" required>
-            <input type="password" name="password" placeholder="Пароль" required>
-            <button type="submit">Зарегистрироваться</button>
-        </form>
+    <div th:if="${not #strings.isEmpty(error)}" class="error-message">
+        <span th:text="${error}"></span>
+    </div>
 
-            <p>Уже есть аккаунт? <a href="/login">Войти</a></p>
-        </div>
+    <form th:action="@{/register}" method="post">
+        <input type="text" name="username" placeholder="Придумайте логин" required>
+        <input type="password" name="password" placeholder="Придумайте пароль" required>
+        <button type="submit" class="btn btn-primary btn-block">Зарегистрироваться</button>
+    </form>
+
+    <p style="text-align: center; margin-top: 1.5rem;">
+        Уже есть аккаунт? <a href="/login">Войдите</a>
+    </p>
+</main>
 </body>
 </html>

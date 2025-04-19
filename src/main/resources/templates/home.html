@@ -1,53 +1,33 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Главная</title>
+    <title>Главная | Unio</title>
     <link rel="stylesheet" href="/css/style.css">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: sans-serif;
-        }
-        .top-right {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-        }
-        .btn {
-            margin-left: 10px;
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            display: inline-block;
-        }
-        .btn:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-<div class="top-right">
+<header class="header">
     <div th:if="${#authentication == null or !#authentication.authenticated}">
-        <a href="/login" class="btn">Войти</a>
-        <a href="/register" class="btn">Зарегистрироваться</a>
+        <a href="/login" class="btn btn-primary">Войти</a>
+        <a href="/register" class="btn btn-primary" style="margin-left: 10px;">Регистрация</a>
     </div>
     <div th:if="${#authentication != null and #authentication.authenticated}">
-        <span>Вы вошли как: <span th:text="${#authentication.name}"></span></span>
-        <a href="/logout" class="btn">Выйти</a>
+        <span class="user-greeting">Вы вошли как: <strong th:text="${#authentication.name}"></strong></span>
+        <form th:action="@{/logout}" method="post" style="display: inline;">
+            <button type="submit" class="btn btn-primary">Выйти</button>
+        </form>
     </div>
-</div>
+</header>
 
-<!-- Основное содержимое страницы -->
-<div style="padding: 50px; text-align: center;">
-    <h1>Добро пожаловать!</h1>
+<main class="hero">
+    <h1>Добро пожаловать в UniO</h1>
     <div th:if="${#authentication != null and #authentication.authenticated}">
-        <p>Вы успешно авторизованы в системе</p>
+        <p>Теперь вы можете получить полный доступ ко всем возможностям нашей платформы</p>
+        <a href="#" class="btn btn-primary" style="margin-top: 20px;">Перейти в профиль</a>
     </div>
-</div>
+    <div th:unless="${#authentication != null and #authentication.authenticated}">
+        <p>Пожалуйста, войдите или зарегистрируйтесь, чтобы получить доступ к системе</p>
+    </div>
+</main>
 </body>
 </html>
