@@ -45,7 +45,7 @@ public class UserService {
             userRepository.lockTableForWrite();
 
             if(userRepository.existsByUsername(username).isPresent()) {
-                throw new IllegalArgumentException("Username is already in use");
+                throw new IllegalArgumentException("Пользователь с таким именем уже существует!");
             }
 
             User user = new User();

@@ -56,12 +56,12 @@ public class SecurityConfig {
         http
                 .userDetailsService(userDetailsService)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/home", "/login", "/register", "/css/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/", "/home", "/login", "/register", "/css/**", "/profile/create").permitAll()
+                        .anyRequest().hasAuthority("ROLE_USER")
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/", true)
+                        .defaultSuccessUrl("/profile", true)
                         .permitAll()
                 )
                 .logout(logout -> logout

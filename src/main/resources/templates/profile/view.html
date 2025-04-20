@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Мой профиль | Unio</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+<!--    <header class="header">-->
+<!--        <a href="/" class logo>Unio</a>-->
+<!--        <div class="user-actions">-->
+<!--            <span class="user-greeting">Привет, <span th:text="${authentication.name}"></span>!</span>-->
+<!--        </div>-->
+<!--    </header>-->
+
+    <main class="profile-container">
+        <div class="profile-card">
+            <div class="profile-header">
+                <a href="/" class="btn btn-back"><i class="fas fa-arrow-left"></i>Назад</a>
+                <h1>Мой профиль</h1>
+                <!--    <a th:href="@{/profile/edit}" class="btn btn-edit">-->
+                <!--        <i class="fas fa-edit"></i> Редактировать-->
+                <!--    </a>-->
+            </div>
+
+            <div class="profile-photo">
+                <img th:if="${profile.photoUrl}"
+                     th:src="@{${profile.photoUrl}}"
+                     alt="Фото профиля"
+                     style="max-width: 200px; border-radius: 50%;">
+                <div th:unless="${profile.photoUrl}" class="no-photo">Нет фото</div>
+            </div>
+
+            <div class="profile-details">
+                <div class="detail-item">
+                    <span class="detail-label">Имя:</span>
+                    <span class="detail-value" th:text="${profile.name} ?: 'Не указано'"></span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Возраст:</span>
+                    <span class="detail-value" th:text="${profile.age} ?: 'Не указано'"></span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Пол:</span>
+                    <span class="detail-value" th:text="${profile.gender} ?: 'Не указан'"></span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Город:</span>
+                    <span class="detail-value" th:text="${profile.city} ?: 'Не указан'"></span>
+                </div>
+
+                <div class="detail-item detail-item__about">
+                    <span class="detail-label">О себе:</span>
+                    <span class="detail-value" th:text="${profile.bio} ?: 'Не указано'"></span>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

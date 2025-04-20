@@ -18,10 +18,4 @@ public class MainController {
         }
         return "home";
     }
-
-    @GetMapping("/profile")
-    public String profile (@AuthenticationPrincipal User user, Model model) {
-        model.addAttribute("user", user);
-        return "profile";
-    }
 }

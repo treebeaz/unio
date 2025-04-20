@@ -1,10 +1,10 @@
 package ru.unio.service;
 
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.unio.repository.UserRepository;
 
 /**
@@ -45,20 +45,7 @@ public class CustomUserDetailService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        ru.unio.entity.User user = userRepository.findByUsername(username)
+        return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));  // ищется пользователь в базе по логину, если не найден -> выбрасывает исключение
-
-        /**
-         * Создается объект типа UserDetails, используя встроенный билдер от Spring Security.
-         * Это ес че не наш класс User, а org.springframework.security.core.userdetails.User
-         * Берем ник юзера и пароль, даем ему роль юзера и возвращаем построенный UserDetails. (то есть
-         * логин, пароль, и роль).
-         */
-        User.UserBuilder builder = User.withUsername(user.getUsername());
-        builder.password(user.getPassword());
-        builder.roles("USER");
-
-
-        return builder.build();
     }
 }

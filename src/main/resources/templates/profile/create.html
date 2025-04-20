@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Создание Профиля | Unio</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<main class="edit-container">
+    <form th:action="@{/profile/create}" th:object="${profile}" method="post" class="profile-form" enctype="multipart/form-data">
+
+        <h1>Создание профиля</h1>
+
+        <div class="form-group">
+            <label for="photo_url">Фото Профиля</label>
+            <input type="file" id="photo_url" name="photo_url" accept="image/*">
+        </div>
+
+        <div class="form-group">
+            <label for="name">Полное имя</label>
+            <input type="text" id="name" th:field="*{name}" placeholder="Введите ваше имя">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="birthDate">Дата рождения</label>
+                <input type="date" id="birthDate" th:field="*{birthDate}">
+            </div>
+
+            <div class="form-group">
+                <label for="gender">Пол</label>
+                <select id="gender" th:field="*{gender}">
+                    <option value="">Не указан</option>
+                    <option value="MALE">Мужской</option>
+                    <option value="FEMALE">Женский</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="city">Город</label>
+            <input type="text" id="city" th:field="*{city}" placeholder="Введите ваш город">
+        </div>
+
+        <div class="form-group">
+            <label for="bio">О себе</label>
+            <textarea id="bio" th:field="*{bio}" rows="4" placeholder="Расскажите о себе..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-save">Сохранить изменения</button>
+    </form>
+</main>
+</body>
+</html>

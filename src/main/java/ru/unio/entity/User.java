@@ -2,10 +2,12 @@ package ru.unio.entity;
 
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  *  Класс, представляющий сущность пользователя в системе.
@@ -43,6 +45,9 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserProfile profile;
+
     @Column(unique = true, nullable = false, length = 60)
     private String username;
 
@@ -62,17 +67,19 @@ public class User implements UserDetails {
         return id;
     }
 
-    public String getUsername() {
-        return username;
+    @Override
+    public String getPassword() {
+        return this.password;
     }
 
-    public String getPassword() {
-        return password;
+    @Override
+    public String getUsername() {
+        return this.username;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList();
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
     @Override
