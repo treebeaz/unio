@@ -4,26 +4,27 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.unio.repository.UserRepository;
 
 /**
- * Класс реализует интерфейс UserDetailService, который нужен Spring Security для получения информации о пользователе
- * при входе в систему
- *
- * Его основная задача - найти пользователя в базе по нику (username) и передать его данные в SpringSecurity для аутентификации
- *
- *  Аннотация @Service - используется для обозначения класса, который выполняет бизнес-логику приложения.
- *  Короче говоря, он говорит, что этот класс - сервис, который выполняет какие-то задачи, например обрабатывает данные или взаимодействует с бд
- *
- *  Этот интерфейс имеет один обязательный метод - loadUserByUsername - его вызывает Spring при логине.
- *
- *  Как связаны классы User и CustomUserDetailsService ?
- *  User - хранит данные пользователя, реализует UserDetails
- *  CustomUserDetailsService - загружает пользователя из базы по имени и возвращает объект UserDetails
- *  Spring security - вызывает loadUserByUsername(), получает User, проверяет пароль (Это происходит под капотом Spring Security)
- *
- *  Далее смотри файл SecurityConfig.java
+ * <br>Сервис, реализующий интерфейс UserDetailsService.
+ * <br>Этот интерфейс используется Spring Security для получения данных пользователя при аутентификации.
+ *<br>
+ * <br>Основные задачи:
+ * <br>- Найти пользователя в базе данных по username
+ * <br>- Вернуть объект UserDetails, содержащий учетные данные
+ * <br>- В случае отсутствия пользователя — выбросить исключение UsernameNotFoundException
+ *<br>
+ * <br>Аннотация @Service:
+ * <br>Обозначает, что данный класс является компонентом бизнес-логики (сервисом),
+ * и Spring автоматически добавит его в контекст приложения.
+ *<br>
+ * <br>Связь с другими классами:
+ * <br>- User (модель) реализует интерфейс UserDetails — в нем хранятся данные пользователя.
+ * <br>- UserRepository — интерфейс, через который производится доступ к данным пользователя в БД.
+ * <br>- Spring Security вызывает метод loadUserByUsername(), чтобы получить объект UserDetails
+ *<br>
+ *  <br>В связке с SecurityConfig, этот класс является мостом между логикой аутентификации и базой данных.
  */
 
 @Service
@@ -36,16 +37,21 @@ public class CustomUserDetailService implements UserDetailsService {
     public CustomUserDetailService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-
     /**
-     * Этот метод вызывается каждый раз, когда пользователь пытается войти в систему
-     * Если пользователь не найден выбрасывается исключение.
-     * @param username - логин, введеный пользователем при входе
-     *
+     * <br>Метод срабатывает при входе через форму:
+     * <br>- Пользователь вводит логин/пароль -> отправляет POST запрос на /login
+     * <br>- Spring Security:
+     * <br>- Перехватывает запрос
+     * <br>- Вызывает наш метод loadUserByUsername
+     * <br>- Сравнивает пароль (используя автоматически PasswordEncoder в SecurityConfig.java)
+     * <br>
+     * <br> Если говорить коротко - ищется пользователь с таким же username.
+     * <br> Если находит - возвращает его(UserDetails! НЕ User!)
+     * <br> Если нет - выбрасывает исключение - такого пользователя не существует.
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));  // ищется пользователь в базе по логину, если не найден -> выбрасывает исключение
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 }

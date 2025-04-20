@@ -26,20 +26,20 @@ public class UserProfileService {
         userProfileRepository.save(profile);  // Сохраняем в БД
     }
 
-    @Transactional
-    public void updateProfile(User user, UserProfile newProfileData) {
-        UserProfile existingProfile = userProfileRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("Профиль не найден"));
-
-        // Обновляем поля
-        existingProfile.setName(newProfileData.getName());
-        existingProfile.setBirthDate(newProfileData.getBirthDate());
-        existingProfile.setGender(newProfileData.getGender());
-        existingProfile.setCity(newProfileData.getCity());
-        existingProfile.setBio(newProfileData.getBio());
-
-        userProfileRepository.save(existingProfile);  // Сохраняем изменения
-    }
+//    @Transactional
+//    public void updateProfile(User user, UserProfile newProfileData) {
+//        UserProfile existingProfile = userProfileRepository.findByUser(user)
+//                .orElseThrow(() -> new RuntimeException("Профиль не найден"));
+//
+//        // Обновляем поля
+//        existingProfile.setName(newProfileData.getName());
+//        existingProfile.setBirthDate(newProfileData.getBirthDate());
+//        existingProfile.setGender(newProfileData.getGender());
+//        existingProfile.setCity(newProfileData.getCity());
+//        existingProfile.setBio(newProfileData.getBio());
+//
+//        userProfileRepository.save(existingProfile);  // Сохраняем изменения
+//    }
 
     @Transactional
     public UserProfile getUserProfile(User user) {

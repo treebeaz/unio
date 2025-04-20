@@ -10,68 +10,85 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
- * Класс использует Spring Security для обеспечения аутентификации и защиты маршрутов. Вся логика построена на собственный реализациях:
- * 1. Пользовательская сущность User реализует UserDetails
- * 2. Кастомный сервис CustomUserDetailService реализуется UserDetailService
- * 3. Настройки безопасности определяются тут. (в SecurityConfig)
- * Он определяет, как пользователи могут входить в систему, какие страницы доступны без входа и как обрабатываются выходы из системы (еще не реализовано )))
- *
- * Короче говоря, этот класс управляет всей конфигурацией безопасности.
- * То есть, он говорит Spring Security: какие страницы открыты всем, как обрабатывать логин и логаут, как загружать пользователе, как проверять пароли
- *
- * Как связаны User CustomUserDetailService SecurityConfig:
- * 1. User - модель пользователя
- * 2. Custom... - Загружает пользователя из БД по логину(userDetailService)
- * 3. SecurityConfig - настравивает - кого пускать, как логиниться, как сравнивать пароли
- * 4. PasswordEncoder - используется для шифровки и проверки паролей(BCrypt)
- *
- * Аннотации:
- * @Configuration - помечается для класса-конфигурации Spring
- * @EnableWebSecurity - включает механизм Spring Security
- * @Bean - используется для опеределения метода, который создает и настраивает Объект. Spring берет на себя управление этим объектом. (не знаю для чего )))
- *
- *
- * Как работает:
- * Пользователь отправляет форму входа /login с username и password
- *
- * Spring Security перехватывает форму
- *
- * Вызывает loadUserByUsername() у CustomUserDetailService
- *
- * Из БД достаётся объект User
- *
- * Пароль проверяется с использованием PasswordEncoder.matches(...)
- *
- * Если всё совпало — пользователь авторизован, данные сохраняются в SecurityContext
- *
- * Далее смотри UserRepository
+ * <br>Конфигурационный класс, отвечающий за настройку безопасности приложения с использованием Spring Security.
+ *<br>
+ * <br>Основные задачи:
+ * <br>- Настраивает, какие маршруты доступны без авторизации
+ * <br>- Обрабатывает формы логина и логаута (еще не реализовано)
+ * <br>- Подключает кастомный сервис пользователей (CustomUserDetailService)
+ * <br>- Настраивает шифрование паролей через BCryptPasswordEncoder
+ *<br>
+ * <br>Связанные компоненты:
+ * <br>1. User — модель пользователя, реализует интерфейс UserDetails (для передачи данных Spring Security)
+ * <br>2. CustomUserDetailService — сервис, реализующий интерфейс UserDetailsService, загружает пользователя из БД
+ * <br>3. SecurityConfig — текущий класс, который говорит Spring Security, как именно настраивать безопасность
+ * <br>4. PasswordEncoder — используется для шифрования и проверки паролей при логине
+ *<br>
+ * <br>Аннотации:
+ * <br>- @Configuration — помечает класс как конфигурационный, Spring будет использовать его при запуске
+ * <br>- @EnableWebSecurity — активирует систему безопасности Spring Security
+ * <br>- @Bean — указывает, что метод создает и настраивает объект, которым будет управлять Spring (НЕ мы!)
+ *<br>
+ * <br>Алгоритм работы логина:
+ * <br>1. Пользователь отправляет POST-запрос на `/login` с логином и паролем
+ * <br>2. Spring Security перехватывает запрос
+ * <br>3. Вызывает метод `loadUserByUsername()` из CustomUserDetailService
+ * <br>4. Загружается пользователь из базы
+ * <br>5. Пароль проверяется через PasswordEncoder (BCrypt)
+ * <br>6. При успешной проверке — пользователь сохраняется в SecurityContext и считается аутентифицированным
+ *<br>
+ * <br>Что происходит дальше:
+ * <br>- При успешной аутентификации пользователя перенаправляют на `/profile` (.defaultSuccessUrl("/profile", true))
+ *<br>
+ * <br>Примечания:
+ * <br>- Все маршруты, кроме указанных явно в `.permitAll()`, требуют авторизации и роли `ROLE_USER`
  *
  */
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    /**
+     * Настройка цепочки фильтров безопасности. Определяет:
+     * - какие страницы доступны
+     * - как осуществляется вход в систему
+     * - как происходит выход
+     * - как обрабатываются пользователи и пароли
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
         http
+                // Сервис для загрузки пользователя из БД
                 .userDetailsService(userDetailsService)
+
+                // Разрешения на доступ к маршрутам
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/home", "/login", "/register", "/css/**", "/profile/create").permitAll()
-                        .anyRequest().hasAuthority("ROLE_USER")
+                        .anyRequest().hasAuthority("ROLE_USER")  // остальные маршруты — только для авторизованных
                 )
+
+                // Настройка формы логина
                 .formLogin(form -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/profile", true)
+                        .loginPage("/login")  // пользовательская страница входа
+                        .defaultSuccessUrl("/profile", true)  // после успешного входа — на страницу профиля
                         .permitAll()
                 )
+
+                // Настройка выхода из системы
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/?logout")
+                        .logoutSuccessUrl("/?logout")   // после выхода — на главную
                         .permitAll()
                 );
 
-        return http.build();
+        return http.build();  // возвращаем настроенную цепочку фильтров
     }
 
+    /**
+     * Компонент шифрования паролей.
+     * Используется при:
+     *  - Сравнении пароля при входе (Spring сам вызывает .matches(...))
+     *  - Шифровании пароля при регистрации (UserService → passwordEncoder.encode(...))
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

@@ -15,7 +15,6 @@ public class WebConfig  implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Получаем абсолютный путь к папке uploads
         String absolutePath = Paths.get(uploadDir).toAbsolutePath().toString();
 
         registry.addResourceHandler("/uploads/**")

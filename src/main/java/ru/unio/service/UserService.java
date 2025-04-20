@@ -8,14 +8,29 @@ import ru.unio.entity.User;
 import ru.unio.repository.UserRepository;
 
 /**
- * UserService - это сервис для работы с пользователями. Он отвечает за:
- * Регистрацию новых пользователей
- * Поиск пользователей по логину
- * Шифрование паролей
- *
- *
- *
- *
+ * <br>Сервис для управления пользователями системы.
+ * <br>
+ * <br>Основные функции:
+ * <br>- Регистрация новых пользователей с проверкой уникальности логина
+ * <br>- Шифрование паролей перед сохранением (PasswordEncoder)
+ * <br>- Интеграция с системой безопасности Spring Security
+ * <br>
+ * <br>Важные особенности:
+ * <br>- Использует пессимистичную блокировку (lockTableForWrite) для защиты от race condition
+ * <br>- Обрабатывает ошибки, связанные с нарушением уникальности логина
+ * <br>- Вся регистрация обернута в транзакцию (@Transactional), чтобы гарантировать атомарность
+ * <br>
+ * <br>Использует:
+ * <br>- UserRepository для доступа к данным в Postgres
+ * <br>- PasswordEncoder (обычно BCrypt), внедренный через Spring Security для безопасного хранения паролей
+ * <br>
+ * <br>В связке с:
+ * <br>- `User`: сущность, которая сохраняется в БД
+ * <br>- `CustomUserDetailService`: отвечает за аутентификацию (логин)
+ * <br>- `SecurityConfig`: конфигурирует Spring Security (шифрование, авторизация, фильтры)
+ * <br>
+ * <br>Аннотация @Transactional - Это аннотация из Spring Framework, которая управляет транзакциями. Она говорит Spring-у: "всё, что происходит в этом методе, должно выполняться как единая операция".
+ * Если внутри метода что-то пойдёт не так (например, произойдёт исключение), то все изменения в базе данных будут отменены — как будто метод и не вызывался.
  */
 
 @Service
@@ -29,14 +44,18 @@ public class UserService {
     }
 
     /**
-     * Регистрирует нового пользователя в системе.
-     * @param username
-     * @param password
+     * <br>Регистрирует нового пользователя в системе.
+     * <br>
+     * <br>Алгоритм работы:
+     * <br>1. Блокирует таблицу пользователей для записи
+     * <br>2. Проверяет, не занят ли логин
+     * <br>3. Если логин свободен - создает пользователя с зашифрованным паролем
+     * <br>4. Если логин занят - выбрасывает исключение
+     * <br>
+     * <br>@param username логин пользователя (должен быть уникальным)
+     * <br>@param password пароль в открытом виде (будет зашифрован)
+     * <br>@throws IllegalArgumentException если логин уже занят
      *
-     * Как работает:
-     * Блокирует таблицу пользователей от изменений (чтобы избежать проблем при одновременной регистрации)
-     * Проверяет, не занят ли логин
-     * Если логин свободен - создаёт пользователя с зашифрованным паролем
      */
     @Transactional
     public void registerUser(String username, String password) {
@@ -56,11 +75,6 @@ public class UserService {
         catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException("Username already exists", e);
         }
-    }
-
-    public User findUserByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("Username not found"));
     }
 
 }
