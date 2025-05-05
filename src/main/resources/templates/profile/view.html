@@ -19,9 +19,6 @@
             <div class="profile-header">
                 <a href="/" class="btn btn-back"><i class="fas fa-arrow-left"></i>Назад</a>
                 <h1>Мой профиль</h1>
-                <!--    <a th:href="@{/profile/edit}" class="btn btn-edit">-->
-                <!--        <i class="fas fa-edit"></i> Редактировать-->
-                <!--    </a>-->
             </div>
 
             <div class="profile-photo">
@@ -58,7 +55,28 @@
                     <span class="detail-value" th:text="${profile.bio} ?: 'Не указано'"></span>
                 </div>
             </div>
+
+            <form th:action="@{/profile/delete}" method="post" id="deleteForm">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="button" class="btn btn-danger" onclick="confirmDelete()">
+                    <i class="fas fa-trash-alt"></i> Удалить аккаунт
+                </button>
+            </form>
         </div>
+
+        <script>
+            function confirmDelete() {
+                if(confirm("Подтвердите удаление")) {
+                    fetch('/profile/delete', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRF-TOKEN': document.querySelector('[name="_csrf"]').value
+                        }
+                    }).then(() => window.location.href = '/login?deleted');
+                }
+            }
+        </script>
     </main>
 </body>
 </html>

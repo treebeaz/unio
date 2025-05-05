@@ -19,27 +19,14 @@ public class UserProfileService {
 
     @Transactional
     public void createProfile(User user, UserProfile profile) {
+        userProfileRepository.findAndLockByUsername(user.getUsername());
+
         User attachedUser = userRepository.findByUsername(user.getUsername())
-                        .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Unable to find user when creating profile"));
 
         profile.setUser(attachedUser);  // Связываем профиль с пользователем
         userProfileRepository.save(profile);  // Сохраняем в БД
     }
-
-//    @Transactional
-//    public void updateProfile(User user, UserProfile newProfileData) {
-//        UserProfile existingProfile = userProfileRepository.findByUser(user)
-//                .orElseThrow(() -> new RuntimeException("Профиль не найден"));
-//
-//        // Обновляем поля
-//        existingProfile.setName(newProfileData.getName());
-//        existingProfile.setBirthDate(newProfileData.getBirthDate());
-//        existingProfile.setGender(newProfileData.getGender());
-//        existingProfile.setCity(newProfileData.getCity());
-//        existingProfile.setBio(newProfileData.getBio());
-//
-//        userProfileRepository.save(existingProfile);  // Сохраняем изменения
-//    }
 
     @Transactional
     public UserProfile getUserProfile(User user) {
@@ -54,4 +41,12 @@ public class UserProfileService {
     public boolean profileExists(User user) {
         return userProfileRepository.existsByUser(user);
     }
+
+    @Transactional
+    public void deleteUserWithProfile(User user) {
+        UserProfile profile = userProfileRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Unable to find user when deleting profile"));
+        userProfileRepository.delete(profile);
+    }
+
 }

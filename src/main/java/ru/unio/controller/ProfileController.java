@@ -1,8 +1,12 @@
 package ru.unio.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -72,16 +76,35 @@ public class ProfileController {
                 photo.transferTo(filePath);
                 profileData.setPhotoUrl("/uploads/photos/" + filename);
 
-                System.out.println("Файл сохранен по пути: " + filePath);
+                System.out.println("The file is saved to the path: " + filePath);
             }
             userProfileService.createProfile(user, profileData);
-            redirectAttributes.addFlashAttribute("Success", "Профиль успешно создан");
+            redirectAttributes.addFlashAttribute("Success", "Profile created successfully");
             return "redirect:/profile";
         }
         catch (Exception e) {
-            e.printStackTrace();
-            redirectAttributes.addFlashAttribute("Error", "Ошибка при создании профиля");
+            redirectAttributes.addFlashAttribute("Error", "Error creating profile");
             return "redirect:/profile/create";
+        }
+    }
+
+    @PostMapping("/delete")
+    public String deleteAccount(@AuthenticationPrincipal User user,
+                                HttpServletRequest request,
+                                HttpServletResponse response,
+                                RedirectAttributes redirectAttributes) {
+        try {
+            userProfileService.deleteUserWithProfile(user);
+
+            new SecurityContextLogoutHandler().logout(request, response,
+                    SecurityContextHolder.getContext().getAuthentication());
+
+            redirectAttributes.addFlashAttribute("Success", "Profile deleted successfully");
+            return "redirect:/login?status=deleted";
+        }
+        catch (Exception e) {
+            redirectAttributes.addFlashAttribute("Error", "Error deleting profile");
+            return "redirect:/profile";
         }
     }
 
