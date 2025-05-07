@@ -5,6 +5,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.management.relation.Role;
 import java.util.Collection;
 import java.util.List;
 
@@ -45,16 +46,37 @@ public class User implements UserDetails {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserProfile profile;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserPhoto> photos;
+
     @Column(unique = true, nullable = false, length = 60)
     private String username;
 
     @Column(nullable = false, length = 100)
     private String password;
 
+    @Transient
+    private int countPhotos;
+
+    {
+        countPhotos = 0;
+    }
+
+    public int getCountPhotos() {
+        return countPhotos;
+    }
+
+    public void setCountPhotos(int countPhotos) {
+        this.countPhotos = countPhotos;
+    }
+
+    public int changeCountPhotos() {
+        return ++countPhotos;
+    }
+
     public void setPassword(String password) {
         this.password = password;
     }
-
 
     public void setUsername(String username) {
         this.username = username;

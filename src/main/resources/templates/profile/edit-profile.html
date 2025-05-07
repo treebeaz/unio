@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Редактирование профиля | Unio</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+<main class="edit-profile-container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <a th:href="@{/profile}" class="btn btn-back"><i class="fas fa-arrow-left"></i> Назад</a>
+            <h1>Редактирование профиля</h1>
+        </div>
+
+        <form th:action="@{/profile/edit}" method="post" enctype="multipart/form-data">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <!-- Секция с фото -->
+            <div class="edit-section">
+                <h2><i class="fas fa-images"></i> Мои фото</h2>
+                <div class="photos-grid">
+                    <div class="photo-upload">
+                        <label for="photoUpload">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Добавить фото</span>
+                            <input id="photoUpload" type="file" name="photo" accept="image/*" style="display: none;">
+                        </label>
+                    </div>
+                    <!-- Здесь можно добавить превью существующих фото -->
+                </div>
+            </div>
+
+            <!-- Секция "Био" -->
+            <div class="edit-section">
+                <h2><i class="fas fa-user-edit"></i> Био</h2>
+                <textarea class="bio-textarea" name="bio" placeholder="Расскажите о себе..."
+                          th:text="${profile.bio}"></textarea>
+            </div>
+
+            <!-- Основная информация -->
+            <div class="edit-section">
+                <h2><i class="fas fa-info-circle"></i> Основные</h2>
+
+                <div class="form-group">
+                    <label for="name">Имя:</label>
+                    <input type="text" id="name" name="name" th:value="${profile.name}">
+                </div>
+
+                <div class="form-group">
+                    <label for="age">Возраст:</label>
+                    <input type="number" id="age" name="age" th:value="${profile.age}">
+                </div>
+
+                <div class="form-group">
+                    <label for="city">Город:</label>
+                    <input type="text" id="city" name="city" th:value="${profile.city}">
+                </div>
+
+                <div class="form-group">
+                    <label>Пол:</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="gender" value="MALE" th:checked="${profile.gender == 'MALE'}"> Мужской
+                        </label>
+                        <label>
+                            <input type="radio" name="gender" value="FEMALE" th:checked="${profile.gender == 'FEMALE'}"> Женский
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-save">
+                <i class="fas fa-save"></i> Сохранить изменения
+            </button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

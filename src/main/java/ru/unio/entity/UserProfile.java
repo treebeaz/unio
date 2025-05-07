@@ -36,6 +36,7 @@ public class UserProfile {
     @Column(name = "name")
     private String name;
 
+
     public void setUser(User user) {
         this.user = user;
     }
@@ -43,7 +44,6 @@ public class UserProfile {
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
     }
-
 
     public void setGender(String gender) {
         this.gender = gender;
@@ -96,4 +96,6 @@ public class UserProfile {
     public void setName(String name) {
         this.name = name;
     }
+
+
 }

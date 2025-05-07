@@ -2,37 +2,33 @@ package ru.unio.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.unio.entity.User;
+import ru.unio.entity.UserPhoto;
 import ru.unio.entity.UserProfile;
-import ru.unio.repository.UserRepository;
+import ru.unio.repository.UserPhotoRepository;
+import ru.unio.service.UserPhotoService;
 import ru.unio.service.UserProfileService;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Objects;
+import java.util.Optional;
 
 
 @Controller
 @RequestMapping("/profile")
 public class ProfileController {
     private final UserProfileService userProfileService;
-    private final UserRepository userRepository;
+    private final UserPhotoRepository userPhotoRepository;
 
-    public ProfileController(UserProfileService userProfileService, UserRepository userRepository) {
+    public ProfileController(UserProfileService userProfileService, UserPhotoRepository userPhotoRepository) {
         this.userProfileService = userProfileService;
-        this.userRepository = userRepository;
+        this.userPhotoRepository = userPhotoRepository;
     }
 
     @GetMapping
@@ -42,6 +38,9 @@ public class ProfileController {
         }
 
         model.addAttribute("profile", userProfileService.getUserProfile(user));
+        Optional<UserPhoto> mainPhoto = userPhotoRepository.findByUserIdAndIsMain(user.getId(), true);
+
+        mainPhoto.ifPresent(userPhoto -> model.addAttribute("mainPhotoUrl", userPhoto.getPhotoUrl()));
         return "profile/view";
     }
 
@@ -55,37 +54,35 @@ public class ProfileController {
         return "profile/create";
     }
 
-    @Value("${app.upload.dir}")
-    private String uploadDir;
+    @GetMapping("/edit")
+    public String editProfileForm(@AuthenticationPrincipal User user, Model model) {
+        UserProfile userProfile = userProfileService.getUserProfile(user);
+        model.addAttribute("profile", userProfile);
+        return "profile/edit-profile";
+    }
 
-    @PostMapping("/create")
-    public String createProfile(@AuthenticationPrincipal User user,
-                                @ModelAttribute UserProfile profileData,
-                                @RequestParam("photo_url") MultipartFile photo,
+    @PostMapping
+    public String updateProfile(@AuthenticationPrincipal User user,
+                                @ModelAttribute UserProfile userProfile,
+                                @RequestParam(value = "photo_url", required = false) MultipartFile photos,
                                 RedirectAttributes redirectAttributes) {
         try {
-            if(!photo.isEmpty()) {
-                String ext = Objects.requireNonNull(photo.getOriginalFilename())
-                        .substring(photo.getOriginalFilename().lastIndexOf("."));
-                String filename = "user_" + user.getId() + ext;
-
-                Path uploadPath = Paths.get(uploadDir, "photos").toAbsolutePath();
-                Files.createDirectories(uploadPath);
-
-                Path filePath = uploadPath.resolve(filename);
-                photo.transferTo(filePath);
-                profileData.setPhotoUrl("/uploads/photos/" + filename);
-
-                System.out.println("The file is saved to the path: " + filePath);
-            }
-            userProfileService.createProfile(user, profileData);
-            redirectAttributes.addFlashAttribute("Success", "Profile created successfully");
+            userProfileService.updateUserProfile(user, userProfile, photos);
+            redirectAttributes.addFlashAttribute("success", "Profile updated successfully");
             return "redirect:/profile";
         }
         catch (Exception e) {
-            redirectAttributes.addFlashAttribute("Error", "Error creating profile");
-            return "redirect:/profile/create";
+            redirectAttributes.addFlashAttribute("error", "Profile update failed");
+            return "redirect:/profile/edit";
         }
+    }
+
+    @PostMapping("/create")
+    public String createProfile(@AuthenticationPrincipal User user,
+                                @ModelAttribute UserProfile profileData) {
+        userProfileService.createProfile(user, profileData);
+
+        return "redirect:/profile";
     }
 
     @PostMapping("/delete")

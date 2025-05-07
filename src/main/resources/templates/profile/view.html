@@ -7,52 +7,53 @@
 </head>
 
 <body>
-<!--    <header class="header">-->
-<!--        <a href="/" class logo>Unio</a>-->
-<!--        <div class="user-actions">-->
-<!--            <span class="user-greeting">Привет, <span th:text="${authentication.name}"></span>!</span>-->
-<!--        </div>-->
-<!--    </header>-->
 
     <main class="profile-container">
         <div class="profile-card">
             <div class="profile-header">
-                <a href="/" class="btn btn-back"><i class="fas fa-arrow-left"></i>Назад</a>
+                <a href="/" class="btn btn-back"><i class="fas fa-arrow-left"></i> Назад</a>
                 <h1>Мой профиль</h1>
             </div>
 
-            <div class="profile-photo">
-                <img th:if="${profile.photoUrl}"
-                     th:src="@{${profile.photoUrl}}"
-                     alt="Фото профиля"
-                     style="max-width: 200px; border-radius: 50%;">
-                <div th:unless="${profile.photoUrl}" class="no-photo">Нет фото</div>
-            </div>
+            <div class="profile-content">
+                <!-- Блок с фото и именем -->
+                <div class="profile-main-info">
+                    <div class="profile-photo">
+                        <img th:if="${mainPhotoUrl}"
+                             th:src="@{${mainPhotoUrl}}"
+                             style="width: 150px; height: 150px; object-fit: cover; border-radius: 12px;">
+                        <div th:unless="${mainPhotoUrl}" class="no-photo">Нет фото</div>
+                    </div>
 
-            <div class="profile-details">
-                <div class="detail-item">
-                    <span class="detail-label">Имя:</span>
-                    <span class="detail-value" th:text="${profile.name} ?: 'Не указано'"></span>
+                    <div class="profile-name-section">
+                        <h2 class="profile-name" th:text="${profile.name} ?: 'Без имени'"></h2>
+                        <a href="/profile/edit" class="edit-profile-link">
+                            <i class="fas fa-pencil-alt"></i> Изменить профиль
+                        </a>
+                    </div>
                 </div>
 
-                <div class="detail-item">
-                    <span class="detail-label">Возраст:</span>
-                    <span class="detail-value" th:text="${profile.age} ?: 'Не указано'"></span>
-                </div>
+                <!-- Детали профиля -->
+                <div class="profile-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Возраст:</span>
+                        <span class="detail-value" th:text="${profile.age} ?: 'Не указано'"></span>
+                    </div>
 
-                <div class="detail-item">
-                    <span class="detail-label">Пол:</span>
-                    <span class="detail-value" th:text="${profile.gender} ?: 'Не указан'"></span>
-                </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Пол:</span>
+                        <span class="detail-value" th:text="${profile.gender} ?: 'Не указан'"></span>
+                    </div>
 
-                <div class="detail-item">
-                    <span class="detail-label">Город:</span>
-                    <span class="detail-value" th:text="${profile.city} ?: 'Не указан'"></span>
-                </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Город:</span>
+                        <span class="detail-value" th:text="${profile.city} ?: 'Не указан'"></span>
+                    </div>
 
-                <div class="detail-item detail-item__about">
-                    <span class="detail-label">О себе:</span>
-                    <span class="detail-value" th:text="${profile.bio} ?: 'Не указано'"></span>
+                    <div class="detail-item detail-item__about">
+                        <span class="detail-label">О себе:</span>
+                        <span class="detail-value" th:text="${profile.bio} ?: 'Не указано'"></span>
+                    </div>
                 </div>
             </div>
 
@@ -63,20 +64,15 @@
                 </button>
             </form>
         </div>
-
-        <script>
-            function confirmDelete() {
-                if(confirm("Подтвердите удаление")) {
-                    fetch('/profile/delete', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                            'X-CSRF-TOKEN': document.querySelector('[name="_csrf"]').value
-                        }
-                    }).then(() => window.location.href = '/login?deleted');
-                }
-            }
-        </script>
     </main>
+
+    <script>
+        function confirmDelete() {
+            if(confirm("Подтвердите удаление")) {
+                document.getElementById('deleteForm').submit();
+            }
+        }
+    </script>
+
 </body>
 </html>
