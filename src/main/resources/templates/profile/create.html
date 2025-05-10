@@ -1,55 +1,474 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Создание Профиля | Unio</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Создание профиля | Unio</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #ff4d6d;
+            --secondary-color: #ff8fa3;
+            --dark-color: #2b2d42;
+            --light-bg: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-color);
+        }
+
+        .creation-container {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .creation-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            padding: 30px;
+        }
+
+        .creation-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .creation-header h1 {
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 10px;
+        }
+
+        .creation-header p {
+            color: #6c757d;
+            margin-bottom: 0;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e9ecef;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            position: relative;
+            margin: 0 15px;
+        }
+
+        .step.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .step.completed {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 100%;
+            width: 30px;
+            height: 2px;
+            background: #e9ecef;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .step.completed:not(:last-child)::after {
+            background: var(--secondary-color);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(255, 77, 109, 0.15);
+            outline: none;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .photo-upload {
+            text-align: center;
+            padding: 40px;
+            border: 2px dashed #e0e0e0;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .photo-upload:hover {
+            border-color: var(--primary-color);
+            background: rgba(255, 77, 109, 0.05);
+        }
+
+        .photo-upload i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .photo-upload p {
+            margin-bottom: 15px;
+            color: #6c757d;
+        }
+
+        .photo-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 15px;
+            object-fit: cover;
+            margin: 0 auto 20px;
+            display: block;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn-save {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn-save:hover {
+            background-color: #ff3355;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 77, 109, 0.3);
+        }
+
+        .btn-upload {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-upload:hover {
+            background-color: #ff3355;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 77, 109, 0.3);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        @media (max-width: 576px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .creation-container {
+                padding: 0 15px;
+            }
+
+            .creation-card {
+                padding: 20px;
+            }
+        }
+
+
+        .input-with-icon,
+        .datepicker-container,
+        .gender-select,
+        .textarea-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i,
+        .datepicker-container i,
+        .textarea-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            z-index: 2;
+        }
+
+        .textarea-with-icon i {
+            top: 20px;
+            transform: none;
+        }
+
+        .input-with-icon input,
+        .datepicker-container input,
+        .gender-select select,
+        .textarea-with-icon textarea {
+            padding-left: 45px !important;
+        }
+
+        /* Стили для календаря */
+        .datepicker-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .datepicker-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            pointer-events: none;
+        }
+
+        input[type="date"] {
+            appearance: none;
+            -webkit-appearance: none;
+            position: relative;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: auto;
+            height: auto;
+            color: transparent;
+            background: transparent;
+        }
+
+        /* Стили для выбора пола */
+        .gender-select {
+            position: relative;
+        }
+
+        .gender-select select {
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .select-arrow {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            pointer-events: none;
+        }
+
+        /* Анимации и эффекты */
+        .input-with-icon input:focus,
+        .datepicker-container input:focus,
+        .gender-select select:focus,
+        .textarea-with-icon textarea:focus {
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 0 0 0.25rem rgba(255, 77, 109, 0.15) !important;
+        }
+
+        /* Адаптация для мобильных */
+        @media (max-width: 576px) {
+            .input-with-icon i,
+            .datepicker-container i,
+            .textarea-with-icon i {
+                left: 10px;
+            }
+
+            .input-with-icon input,
+            .datepicker-container input,
+            .gender-select select,
+            .textarea-with-icon textarea {
+                padding-left: 35px !important;
+            }
+        }
+    </style>
 </head>
 <body>
-
-<main class="edit-container">
-
-    <h1>Создание профиля</h1>
-
-    <form th:action="@{/profile/photos}" method="post" enctype="multipart/form-data">
-        <input type="file" name="file">
-        <button type="submit">Загрузить</button>
-    </form>
-
-    <form th:action="@{/profile/create}" th:object="${profile}" method="post" class="profile-form" enctype="multipart/form-data">
-
-        <div class="form-group">
-            <label for="name">Полное имя</label>
-            <input type="text" id="name" th:field="*{name}" placeholder="Введите ваше имя">
+<!-- Шаг 1: Загрузка фото -->
+<div th:if="${step == 'photo'}" class="creation-container">
+    <div class="creation-card">
+        <div class="creation-header">
+            <h1>Добавьте ваше фото</h1>
+            <p>Лучшие фото увеличивают шансы на успех!</p>
         </div>
 
-        <div class="form-row">
-            <div class="form-group">
-                <label for="birthDate">Дата рождения</label>
-                <input type="date" id="birthDate" th:field="*{birthDate}">
+        <div class="step-indicator">
+            <div class="step active">1</div>
+            <div class="step">2</div>
+        </div>
+
+        <form th:action="@{/profile/photos}" method="post" enctype="multipart/form-data" id="photoForm">
+            <div class="photo-upload" onclick="document.getElementById('fileInput').click()">
+                <th:block th:if="${mainPhotoUrl}">
+                    <img th:src="@{${mainPhotoUrl}}" class="photo-preview">
+                </th:block>
+                <th:block th:unless="${mainPhotoUrl}">
+                    <i class="fas fa-camera"></i>
+                    <p>Нажмите для загрузки фото</p>
+                </th:block>
+                <input type="file" id="fileInput" name="file" accept="image/*" onchange="document.getElementById('photoForm').submit()">
             </div>
 
-            <div class="form-group">
-                <label for="gender">Пол</label>
-                <select id="gender" th:field="*{gender}">
-                    <option value="">Не указан</option>
-                    <option value="Мужской">Мужской</option>
-                    <option value="Женский">Женский</option>
-                </select>
+            <div th:if="${mainPhotoUrl}" class="text-center">
+                <button type="button" class="btn btn-upload" onclick="window.location.href='/profile/create'">
+                    Продолжить <i class="fas fa-arrow-right"></i>
+                </button>
             </div>
+        </form>
+    </div>
+</div>
+
+<!-- Шаг 2: Заполнение профиля -->
+<div th:if="${step == 'info'}" class="creation-container">
+    <div class="creation-card">
+        <div class="creation-header">
+            <h1>Заполните ваш профиль</h1>
+            <p>Расскажите о себе, чтобы найти идеальную пару</p>
         </div>
 
-        <div class="form-group">
-            <label for="city">Город</label>
-            <input type="text" id="city" th:field="*{city}" placeholder="Введите ваш город">
+        <div class="step-indicator">
+            <div class="step completed">1</div>
+            <div class="step active">2</div>
         </div>
 
-        <div class="form-group">
-            <label for="bio">О себе</label>
-            <textarea id="bio" th:field="*{bio}" rows="4" placeholder="Расскажите о себе..."></textarea>
-        </div>
+        <form th:action="@{/profile/create}" th:object="${profile}" method="post" class="profile-form">
+            <!-- Поле имени -->
+            <div class="form-group">
+                <label for="name">Ваше имя</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="name" th:field="*{name}" placeholder="Как вас зовут?" required>
+                </div>
+            </div>
 
-        <button type="submit" class="btn btn-save">Сохранить изменения</button>
-    </form>
-</main>
+            <!-- Дата рождения с календарем -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="birthDate">Дата рождения</label>
+                    <div class="datepicker-container">
+                        <i class="fas fa-calendar-alt"></i>
+                        <input type="date" id="birthDate" th:field="*{birthDate}" required>
+                        <div class="datepicker-toggle">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Выбор пола с красивым оформлением -->
+                <div class="form-group">
+                    <label for="gender">Пол</label>
+                    <div class="gender-select">
+                        <select id="gender" th:field="*{gender}" required>
+                            <option value="">Выберите пол</option>
+                            <option value="Мужской">Мужской</option>
+                            <option value="Женский">Женский</option>
+                        </select>
+                        <div class="select-arrow">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Поле города -->
+            <div class="form-group">
+                <label for="city">Город</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <input type="text" id="city" th:field="*{city}" placeholder="Где вы живете?" required>
+                </div>
+            </div>
+
+            <!-- Поле "О себе" -->
+            <div class="form-group">
+                <label for="bio">О себе</label>
+                <div class="textarea-with-icon">
+                    <i class="fas fa-pencil-alt"></i>
+                    <textarea id="bio" th:field="*{bio}" placeholder="Расскажите о своих интересах, хобби и том, кого вы ищете..." required></textarea>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-save">
+                <i class="fas fa-check"></i> Завершить создание профиля
+            </button>
+        </form>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Показ превью фото перед загрузкой
+    document.getElementById('fileInput')?.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.querySelector('.photo-upload i')?.remove();
+                document.querySelector('.photo-upload p')?.remove();
+
+                var img = document.querySelector('.photo-preview') || document.createElement('img');
+                img.className = 'photo-preview';
+                img.src = e.target.result;
+
+                document.querySelector('.photo-upload').prepend(img);
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+</script>
 </body>
 </html>

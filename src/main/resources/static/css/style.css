@@ -128,7 +128,11 @@ input:focus {
 /* Главная страница */
 .hero {
     text-align: center;
-    padding: 4rem 2rem;
+    padding: 40px 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin: 20px auto;
+    max-width: 800px;
 }
 
 .hero h1 {

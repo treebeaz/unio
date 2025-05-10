@@ -17,6 +17,8 @@ import ru.unio.entity.UserProfile;
 import ru.unio.repository.UserPhotoRepository;
 import ru.unio.service.UserPhotoService;
 import ru.unio.service.UserProfileService;
+
+import java.util.List;
 import java.util.Optional;
 
 
@@ -45,12 +47,17 @@ public class ProfileController {
     }
 
     @GetMapping("/create")
-    public String showCreateProfilePage(@AuthenticationPrincipal User user, Model model) {
+    public String showCreateProfilePage(@AuthenticationPrincipal User user,
+                                        Model model,
+                                        @RequestParam(value = "step", defaultValue = "photo") String step) {
         if(userProfileService.profileExists(user)) {
             return "redirect:/profile";
         }
 
         model.addAttribute("profile", new UserProfile());
+
+        model.addAttribute("step", step);
+
         return "profile/create";
     }
 
@@ -79,8 +86,10 @@ public class ProfileController {
 
     @PostMapping("/create")
     public String createProfile(@AuthenticationPrincipal User user,
-                                @ModelAttribute UserProfile profileData) {
+                                @ModelAttribute UserProfile profileData,
+                                RedirectAttributes redirectAttributes) {
         userProfileService.createProfile(user, profileData);
+        redirectAttributes.addFlashAttribute("step", "info");
 
         return "redirect:/profile";
     }

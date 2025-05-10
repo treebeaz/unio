@@ -33,12 +33,14 @@ public class PhotoController {
         try {
             userPhotoService.savePhoto(user, photo, uploadDir);
             redirectAttributes.addFlashAttribute("success", "Photo uploaded");
+
+            redirectAttributes.addFlashAttribute("step", "info");
         }
         catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Photo upload failed");
         }
 
-        return "redirect:/profile";
+        return "redirect:/profile/create?step=info";
     }
 
 //    @PostMapping("/@id/delete")

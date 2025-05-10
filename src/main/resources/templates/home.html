@@ -1,39 +1,372 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Главная | Unio</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Unio - Найди свою пару</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #ff4d6d;
+            --secondary-color: #ff8fa3;
+            --dark-color: #2b2d42;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 2px 15px rgba(255, 77, 109, 0.2);
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-size: cover;
+            color: white;
+            position: relative;
+            padding: 120px 0;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(43, 45, 66, 0.7);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-hero {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 12px 30px;
+            font-weight: 600;
+        }
+
+        .feature-card {
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .user-card {
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .user-card:hover {
+            transform: scale(1.03);
+        }
+
+        .testimonial-card {
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid var(--primary-color);
+        }
+    </style>
 </head>
 <body>
+<!-- Навигация -->
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">
+            <img src="/images/Logo.png" alt="Unio Dating" height="40" class="me-2">Unio
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#how-it-works">Как это работает</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#success-stories">Истории успеха</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#premium">Premium</a>
+                </li>
+            </ul>
+            <div class="d-flex" th:if="${#authentication == null or !#authentication.authenticated}">
+                <a href="/login" class="btn btn-outline-light me-2">Войти</a>
+                <a href="/register" class="btn btn-light">Регистрация</a>
+            </div>
+            <div class="dropdown" th:if="${#authentication != null and #authentication.authenticated}">
+                <a class="btn btn-light dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-user me-1"></i>
+                    <span th:text="${#authentication.name}"></span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Мой профиль</a></li>
+                    <li><a class="dropdown-item" href="/matches"><i class="fas fa-heart me-2"></i>Мои пары</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form th:action="@{/logout}" method="post">
+                            <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Выйти</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
 
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.min.js" integrity="sha384-VQqxDN0EQCkWoxt/0vsQvZswzTHUVOImccYmSyhJTp7kGtPed0Qcx8rK9h9YEgx+" crossorigin="anonymous"></script>
+<!-- Герой-секция -->
+<section class="hero-section">
+    <div class="container hero-content">
+        <div class="row align-items-center">
+            <div class="col-lg-7 text-center text-lg-start">
+                <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInDown">Найди свою идеальную пару</h1>
+                <p class="lead mb-5 animate__animated animate__fadeInDown animate__delay-1s">Unio помогает людям находить друг друга на основе общих интересов и ценностей</p>
+                <div th:if="${#authentication != null and #authentication.authenticated}">
+                    <a href="/matches" class="btn btn-hero btn-lg me-3 animate__animated animate__fadeInUp animate__delay-2s">
+                        <i class="fas fa-heart me-2"></i>Найти пару
+                    </a>
+                </div>
+                <div th:unless="${#authentication != null and #authentication.authenticated}">
+                    <a href="/register" class="btn btn-hero btn-lg me-3 animate__animated animate__fadeInUp animate__delay-2s">
+                        <i class="fas fa-user-plus me-2"></i>Создать профиль
+                    </a>
+                    <a href="#how-it-works" class="btn btn-outline-light btn-lg animate__animated animate__fadeInUp animate__delay-3s">
+                        Узнать больше
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-<header class="header">
-    <div th:if="${#authentication == null or !#authentication.authenticated}">
-        <a href="/login" class="btn btn-primary">Войти</a>
-        <a href="/register" class="btn btn-primary" style="margin-left: 10px;">Регистрация</a>
+<!-- Как это работает -->
+<section id="how-it-works" class="py-5 bg-light">
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Как работает Unio</h2>
+            <p class="text-muted">Всего 3 простых шага к вашей идеальной паре</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card shadow-sm text-center p-4 h-100 animate__animated animate__fadeInUp">
+                    <div class="icon-circle bg-primary bg-opacity-10 text-primary mx-auto mb-4">
+                        <i class="fas fa-user-edit fa-2x"></i>
+                    </div>
+                    <h4 class="fw-bold">1. Создайте профиль</h4>
+                    <p>Расскажите о себе, своих интересах и добавьте лучшие фотографии</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card shadow-sm text-center p-4 h-100 animate__animated animate__fadeInUp animate__delay-1s">
+                    <div class="icon-circle bg-primary bg-opacity-10 text-primary mx-auto mb-4">
+                        <i class="fas fa-search fa-2x"></i>
+                    </div>
+                    <h4 class="fw-bold">2. Найдите пару</h4>
+                    <p>Наш алгоритм подберет вам идеальных кандидатов на основе ваших предпочтений</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card shadow-sm text-center p-4 h-100 animate__animated animate__fadeInUp animate__delay-2s">
+                    <div class="icon-circle bg-primary bg-opacity-10 text-primary mx-auto mb-4">
+                        <i class="fas fa-comments fa-2x"></i>
+                    </div>
+                    <h4 class="fw-bold">3. Общайтесь</h4>
+                    <p>Начните общение с понравившимися людьми в удобном чате</p>
+                </div>
+            </div>
+        </div>
     </div>
-    <div th:if="${#authentication != null and #authentication.authenticated}">
-        <span class="user-greeting">Вы вошли как: <strong th:text="${#authentication.name}"></strong></span>
-        <form th:action="@{/logout}" method="post" style="display: inline;">
-            <button type="submit" class="btn btn-primary">Выйти</button>
-        </form>
-    </div>
-</header>
+</section>
 
-<main class="hero">
-    <h1>Добро пожаловать в Unio</h1>
-    <div th:if="${#authentication != null and #authentication.authenticated}">
-        <p>Теперь вы можете получить полный доступ ко всем возможностям нашей платформы</p>
-        <a href="#" class="btn btn-primary" style="margin-top: 20px;">Перейти в профиль</a>
+<!-- Популярные профили -->
+<section class="py-5">
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Новые участники</h2>
+            <p class="text-muted">Познакомьтесь с теми, кто недавно присоединился</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="user-card shadow-sm animate__animated animate__fadeIn">
+                    <img src="/images/user_1.jpg" class="card-img-top" alt="Профиль">
+                    <div class="card-body text-center">
+                        <h5 class="card-title mb-1">Анна, 28</h5>
+                        <p class="text-muted small">Москва</p>
+                        <a href="#" class="btn btn-sm btn-outline-primary">Посмотреть</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="user-card shadow-sm animate__animated animate__fadeIn animate__delay-1s">
+                    <img src="/images/user_2.jpg" class="card-img-top" alt="Профиль">
+                    <div class="card-body text-center">
+                        <h5 class="card-title mb-1">Максим, 31</h5>
+                        <p class="text-muted small">Санкт-Петербург</p>
+                        <a href="#" class="btn btn-sm btn-outline-primary">Посмотреть</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="user-card shadow-sm animate__animated animate__fadeIn animate__delay-2s">
+                    <img src="/images/user_3.jpg" class="card-img-top" alt="Профиль">
+                    <div class="card-body text-center">
+                        <h5 class="card-title mb-1">Екатерина, 25</h5>
+                        <p class="text-muted small">Казань</p>
+                        <a href="#" class="btn btn-sm btn-outline-primary">Посмотреть</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="user-card shadow-sm animate__animated animate__fadeIn animate__delay-3s">
+                    <img src="/images/user_4.jpg" class="card-img-top" alt="Профиль">
+                    <div class="card-body text-center">
+                        <h5 class="card-title mb-1">Дмитрий, 29</h5>
+                        <p class="text-muted small">Новосибирск</p>
+                        <a href="#" class="btn btn-sm btn-outline-primary">Посмотреть</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-5">
+            <a href="/users" class="btn btn-primary px-4">Смотреть всех</a>
+        </div>
     </div>
-    <div th:unless="${#authentication != null and #authentication.authenticated}">
-        <p>Пожалуйста, войдите или зарегистрируйтесь, чтобы получить доступ к системе</p>
+</section>
+
+<!-- Истории успеха -->
+<section id="success-stories" class="py-5 bg-light">
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Истории успеха</h2>
+            <p class="text-muted">Реальные пары, которые нашли друг друга через Unio</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="testimonial-card p-4 h-100 animate__animated animate__fadeInLeft">
+                    <div class="d-flex mb-3">
+                        <img src="/images/dating-couple.jpg" class="rounded-circle me-3" width="60" height="60" alt="Пара">
+                        <div>
+                            <h5 class="mb-1">Алексей и Мария</h5>
+                            <p class="text-muted small">Вместе 1 год</p>
+                        </div>
+                    </div>
+                    <p>"Мы познакомились на Unio и сразу нашли общий язык. Сейчас планируем свадьбу!"</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="testimonial-card p-4 h-100 animate__animated animate__fadeInRight">
+                    <div class="d-flex mb-3">
+                        <img src="/images/couple2.jpeg" class="rounded-circle me-3" width="60" height="60" alt="Пара">
+                        <div>
+                            <h5 class="mb-1">Иван и Ольга</h5>
+                            <p class="text-muted small">Вместе 8 месяцев</p>
+                        </div>
+                    </div>
+                    <p>"Благодаря умной системе подбора Unio мы нашли друг друга, хотя живем в разных городах."</p>
+                </div>
+            </div>
+        </div>
     </div>
-</main>
+</section>
+
+<!-- Призыв к действию -->
+<section class="py-5 text-white" style="background: linear-gradient(135deg, #ff4d6d, #ff758f);">
+    <div class="container py-5 text-center">
+        <h2 class="fw-bold mb-4">Готовы найти свою пару?</h2>
+        <p class="lead mb-5">Присоединяйтесь к тысячам счастливых пользователей</p>
+        <a href="/register" class="btn btn-light btn-lg px-5 py-3 fw-bold">Начать бесплатно</a>
+    </div>
+</section>
+
+<!-- Подвал -->
+<footer class="bg-dark text-white py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <h5 class="fw-bold mb-4">Unio</h5>
+                <p>Современная платформа для знакомств и поиска серьезных отношений.</p>
+                <div class="social-links mt-4">
+                    <a href="#" class="text-white me-3"><i class="fab fa-vk fa-lg"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-telegram fa-lg"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-instagram fa-lg"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                <h6 class="fw-bold mb-4">О нас</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="#" class="text-white-50">Команда</a></li>
+                    <li class="mb-2"><a href="#" class="text-white-50">Вакансии</a></li>
+                    <li class="mb-2"><a href="#" class="text-white-50">Блог</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                <h6 class="fw-bold mb-4">Помощь</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="#" class="text-white-50">FAQ</a></li>
+                    <li class="mb-2"><a href="#" class="text-white-50">Безопасность</a></li>
+                    <li class="mb-2"><a href="#" class="text-white-50">Контакты</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                <h6 class="fw-bold mb-4">Правовая информация</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="#" class="text-white-50">Условия</a></li>
+                    <li class="mb-2"><a href="#" class="text-white-50">Конфиденциальность</a></li>
+                    <li class="mb-2"><a href="#" class="text-white-50">Cookie</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 col-md-4">
+                <h6 class="fw-bold mb-4">Приложение</h6>
+                <div class="mb-3">
+                    <a href="#"><img src="/images/app-store.png" alt="App Store" class="img-fluid mb-2"></a>
+                </div>
+                <div>
+                    <a href="#"><img src="/images/google-play.png" alt="Google Play" class="img-fluid"></a>
+                </div>
+            </div>
+        </div>
+        <hr class="my-4">
+        <div class="text-center text-white-50 small">
+            <p>© 2025 Unio. Все права защищены.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Анимация при скролле
+    document.addEventListener('DOMContentLoaded', function() {
+        const animateElements = document.querySelectorAll('.animate__animated');
+
+        const animateOnScroll = function() {
+            animateElements.forEach(element => {
+                const elementPosition = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+
+                if (elementPosition < windowHeight - 100) {
+                    element.classList.add(element.classList[1]);
+                }
+            });
+        };
+
+        window.addEventListener('scroll', animateOnScroll);
+        animateOnScroll(); // Инициализация при загрузке
+    });
+</script>
 </body>
 </html>

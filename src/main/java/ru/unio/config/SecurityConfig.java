@@ -63,7 +63,7 @@ public class SecurityConfig {
 
                 // Разрешения на доступ к маршрутам
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/home", "/login", "/register", "/css/**", "/profile/create").permitAll()
+                        .requestMatchers("/", "/home", "/login", "/register", "/css/**", "/images/**","/profile/create").permitAll()
                         .anyRequest().hasAuthority("ROLE_USER")  // остальные маршруты — только для авторизованных
                 )
 
