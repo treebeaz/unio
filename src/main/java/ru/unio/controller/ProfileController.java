@@ -21,18 +21,57 @@ import ru.unio.service.UserProfileService;
 import java.util.List;
 import java.util.Optional;
 
-
+/**
+ * Контроллер для управления профилями пользователей.
+ *
+ * <h3>Основные функции:</h3>
+ * <ul>
+ *   <li>Просмотр и редактирование профиля</li>
+ *   <li>Создание нового профиля</li>
+ *   <li>Удаление профиля и аккаунта</li>
+ *   <li>Управление фотографиями профиля</li>
+ * </ul>
+ *
+ * <h3>Архитектурные связи:</h3>
+ * <ul>
+ *   <li><b>UserProfileService</b> - основной сервис для работы с профилями</li>
+ *   <li><b>UserPhotoRepository</b> - репозиторий для работы с фотографиями</li>
+ *   <li><b>UserProfile</b> - сущность профиля пользователя</li>
+ *   <li><b>User</b> - сущность пользователя</li>
+ * </ul>
+ */
 @Controller
 @RequestMapping("/profile")
 public class ProfileController {
     private final UserProfileService userProfileService;
     private final UserPhotoRepository userPhotoRepository;
 
-    public ProfileController(UserProfileService userProfileService, UserPhotoRepository userPhotoRepository) {
+    /**
+     * Конструктор с внедрением зависимостей.
+     *
+     * @param userProfileService сервис для работы с профилями пользователей
+     * @param userPhotoRepository репозиторий для работы с фотографиями пользователей
+     */
+    public ProfileController(UserProfileService userProfileService,
+                             UserPhotoRepository userPhotoRepository) {
         this.userProfileService = userProfileService;
         this.userPhotoRepository = userPhotoRepository;
     }
 
+    /**
+     * Отображает страницу профиля пользователя.
+     *
+     * <h4>Логика работы:</h4>
+     * <ul>
+     *   <li>Проверяет существование профиля</li>
+     *   <li>Если профиль не существует - перенаправляет на страницу создания</li>
+     *   <li>Добавляет в модель данные профиля и главную фотографию</li>
+     * </ul>
+     *
+     * @param user аутентифицированный пользователь
+     * @param model контейнер атрибутов для представления
+     * @return имя шаблона для отображения профиля
+     */
     @GetMapping
     public String viewProfilePage(@AuthenticationPrincipal User user, Model model) {
         if (!userProfileService.profileExists(user)) {
@@ -46,6 +85,19 @@ public class ProfileController {
         return "profile/view";
     }
 
+    /**
+     * Отображает форму создания профиля.
+     *
+     * <h4>Параметры:</h4>
+     * <ul>
+     *   <li><code>step</code> - текущий шаг создания профиля (по умолчанию "photo")</li>
+     * </ul>
+     *
+     * @param user аутентифицированный пользователь
+     * @param model контейнер атрибутов для представления
+     * @param step текущий шаг создания профиля
+     * @return имя шаблона для создания профиля
+     */
     @GetMapping("/create")
     public String showCreateProfilePage(@AuthenticationPrincipal User user,
                                         Model model,
@@ -55,12 +107,18 @@ public class ProfileController {
         }
 
         model.addAttribute("profile", new UserProfile());
-
         model.addAttribute("step", step);
 
         return "profile/create";
     }
 
+    /**
+     * Отображает форму редактирования профиля.
+     *
+     * @param user аутентифицированный пользователь
+     * @param model контейнер атрибутов для представления
+     * @return имя шаблона для редактирования профиля
+     */
     @GetMapping("/edit")
     public String editProfileForm(@AuthenticationPrincipal User user, Model model) {
         UserProfile userProfile = userProfileService.getUserProfile(user);
@@ -68,6 +126,21 @@ public class ProfileController {
         return "profile/edit-profile";
     }
 
+    /**
+     * Обновляет данные профиля пользователя.
+     *
+     * <h4>Параметры:</h4>
+     * <ul>
+     *   <li><code>userProfile</code> - данные профиля</li>
+     *   <li><code>photos</code> - фотография профиля (необязательная)</li>
+     * </ul>
+     *
+     * @param user аутентифицированный пользователь
+     * @param userProfile данные профиля
+     * @param photos загружаемая фотография
+     * @param redirectAttributes атрибуты для перенаправления
+     * @return перенаправление на страницу профиля
+     */
     @PostMapping
     public String updateProfile(@AuthenticationPrincipal User user,
                                 @ModelAttribute UserProfile userProfile,
@@ -84,6 +157,14 @@ public class ProfileController {
         }
     }
 
+    /**
+     * Создает новый профиль пользователя.
+     *
+     * @param user аутентифицированный пользователь
+     * @param profileData данные нового профиля
+     * @param redirectAttributes атрибуты для перенаправления
+     * @return перенаправление на страницу профиля
+     */
     @PostMapping("/create")
     public String createProfile(@AuthenticationPrincipal User user,
                                 @ModelAttribute UserProfile profileData,
@@ -94,6 +175,22 @@ public class ProfileController {
         return "redirect:/profile";
     }
 
+    /**
+     * Удаляет профиль и аккаунт пользователя.
+     *
+     * <h4>Логика работы:</h4>
+     * <ul>
+     *   <li>Удаляет профиль через UserProfileService</li>
+     *   <li>Выполняет выход пользователя из системы</li>
+     *   <li>Перенаправляет на страницу входа</li>
+     * </ul>
+     *
+     * @param user аутентифицированный пользователь
+     * @param request HTTP запрос
+     * @param response HTTP ответ
+     * @param redirectAttributes атрибуты для перенаправления
+     * @return перенаправление на страницу входа
+     */
     @PostMapping("/delete")
     public String deleteAccount(@AuthenticationPrincipal User user,
                                 HttpServletRequest request,
@@ -113,5 +210,4 @@ public class ProfileController {
             return "redirect:/profile";
         }
     }
-
 }
