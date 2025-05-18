@@ -78,5 +78,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query(value = "LOCK TABLE users IN SHARE MODE", nativeQuery = true)
     void lockTableForWrite();
+
+    Optional<User> findById(Long id);
 }
 

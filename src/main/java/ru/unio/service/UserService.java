@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.unio.entity.User;
+import ru.unio.exception.UserNotFoundException;
 import ru.unio.repository.UserRepository;
 
 /**
@@ -75,6 +76,12 @@ public class UserService {
         catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException("Username already exists", e);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public User findById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Пользователь с ID " + id + " не найден"));
     }
 
 }
