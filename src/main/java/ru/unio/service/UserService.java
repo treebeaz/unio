@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.unio.entity.User;
 import ru.unio.repository.UserRepository;
 
+import java.util.List;
+
 /**
  * Сервис для управления пользователями системы.
  *
@@ -87,4 +89,9 @@ public class UserService {
             throw new IllegalArgumentException("Username already exists", e);
         }
     }
-}
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+
+    }
+ }

@@ -135,6 +135,22 @@ public class User implements UserDetails {
         return ++countPhotos;
     }
 
+    /**
+     * Gets the list of user photos.
+     * @return list of user photos
+     */
+    public List<UserPhoto> getPhotos() {
+        return photos;
+    }
+
+    /**
+     * Sets the list of user photos.
+     * @param photos list of user photos
+     */
+    public void setPhotos(List<UserPhoto> photos) {
+        this.photos = photos;
+    }
+
     // Стандартные геттеры и сеттеры
 
     public void setPassword(String password) {
@@ -189,5 +205,13 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public UserProfile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(UserProfile profile) {
+        this.profile = profile;
     }
 }

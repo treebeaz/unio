@@ -68,7 +68,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Публичные маршруты
                         .requestMatchers("/", "/home", "/login", "/register", "/css/**",
-                                "/images/**", "/profile/create").permitAll()
+                                "/images/**", "/profile/create", "/discover").permitAll()
                         // Все остальные запросы требуют аутентификации
                         .anyRequest().hasAuthority("ROLE_USER")
                 )
@@ -76,7 +76,7 @@ public class SecurityConfig {
                 // Настройка формы входа
                 .formLogin(form -> form
                         .loginPage("/login")               // Кастомная страница входа
-                        .defaultSuccessUrl("/profile", true) // Перенаправление после входа
+                        .defaultSuccessUrl("/discover", true) // Перенаправление после входа
                         .permitAll()                       // Разрешить доступ к странице входа всем
                 )
 
