@@ -118,9 +118,11 @@
                             <p th:text="${user.profile.bio}">Short bio about the person...</p>
                         </div>
                         <div class="action-buttons">
-                            <button class="btn btn-like flex-grow-1">
-                                <i class="fas fa-heart"></i> Like
-                            </button>
+                            <form th:action="@{/like/{id}(id=${user.id})}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-like flex-grow-1">
+                                    <i class="fas fa-heart"></i> Like
+                                </button>
+                            </form>
                             <button class="btn btn-message flex-grow-1">
                                 <i class="fas fa-comment"></i> Message
                             </button>
