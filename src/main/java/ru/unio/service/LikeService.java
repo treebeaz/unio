@@ -1,8 +1,11 @@
 package ru.unio.service;
 
+import lombok.RequiredArgsConstructor;
+import ru.unio.entity.Chat;
 import ru.unio.entity.Like;
 import ru.unio.entity.Match;
 import ru.unio.entity.User;
+import ru.unio.repository.ChatRepository;
 import ru.unio.repository.LikeRepository;
 import ru.unio.repository.MatchRepository;
 import ru.unio.repository.UserRepository;
@@ -12,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class LikeService {
+    private final ChatRepository chatRepository;
 
     @Autowired
     private LikeRepository likeRepository;
@@ -55,15 +60,24 @@ public class LikeService {
         if (mutualLike != null) {
             // Проверяем, нет ли уже мэтча между этими пользователями
             Match existingMatch = matchRepository.findByUsers(user, likedUser);
-            if (existingMatch == null) {
+//            System.out.println("krut1");
+
+//            if (existingMatch == null) {
+                System.out.println("krut2");
                 Match match = new Match();
                 match.setFirstUser(user.getId() < likedUser.getId() ? user : likedUser);
                 match.setSecondUser(user.getId() < likedUser.getId() ? likedUser : user);
                 matchRepository.save(match);
                 System.out.println("Создан мэтч между user=" + user.getId() + " и likedUser=" + likedUser.getId());
-            } else {
-                System.out.println("Мэтч уже существует между user=" + user.getId() + " и likedUser=" + likedUser.getId());
-            }
+                Chat chat = new Chat();
+                chat.setUser1(user.getId() < likedUser.getId() ? user : likedUser);
+                chat.setUser2(user.getId() < likedUser.getId() ? likedUser : user);
+                chatRepository.save(chat);
+                System.out.println("Создан чат между user=" + user.getId() + " и likedUser=" + likedUser.getId());
+
+//            } else {
+//                System.out.println("Мэтч уже существует между user=" + user.getId() + " и likedUser=" + likedUser.getId());
+//            }
         }
         return like;
     }

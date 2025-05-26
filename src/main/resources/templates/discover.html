@@ -7,20 +7,21 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        .profile-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
         .profile-card {
             border-radius: 15px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-            margin-bottom: 20px;
             background: white;
-        }
-        .profile-card:hover {
-            transform: translateY(-5px);
+            overflow: hidden;
         }
         .profile-image {
-            height: 300px;
+            height: 400px;
             object-fit: cover;
-            border-radius: 15px 15px 0 0;
+            width: 100%;
         }
         .profile-info {
             padding: 20px;
@@ -37,6 +38,7 @@
         .action-buttons {
             display: flex;
             gap: 10px;
+            margin-top: 15px;
         }
         .btn-like {
             background-color: #ff4b6e;
@@ -54,85 +56,184 @@
             background-color: #3867d6;
             color: white;
         }
+        .nav-tabs {
+            position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            border-radius: 0 10px 10px 0;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        .nav-tabs .nav-link {
+            padding: 15px;
+            color: #555;
+        }
+        .nav-tabs .nav-link.active {
+            color: #4b7bec;
+            background-color: #f8f9fa;
+        }
+        .nav-tabs .nav-link:hover:not(.active) {
+            color: #4b7bec;
+        }
+        .navigation-arrows {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 15px;
+            transform: translateY(-50%);
+        }
+        .arrow-btn {
+            background: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 10;
+        }
+        .arrow-btn:hover {
+            background: #f8f9fa;
+        }
         .filters {
             background: white;
             padding: 20px;
             border-radius: 15px;
             margin-bottom: 20px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .profile-indicator {
+            text-align: center;
+            margin-top: 15px;
+            color: #666;
         }
     </style>
 </head>
 <body class="bg-light">
-    <div class="container py-5">
-        <h1 class="text-center mb-4">Discover People</h1>
-        
-        <!-- Filters Section -->
-        <div class="filters mb-4">
-            <div class="row">
-                <div class="col-md-3">
-                    <select class="form-select" id="ageRange">
-                        <option selected>Age Range</option>
-                        <option>18-25</option>
-                        <option>26-35</option>
-                        <option>36-45</option>
-                        <option>46+</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select class="form-select" id="distance">
-                        <option selected>Distance</option>
-                        <option>Within 5km</option>
-                        <option>Within 10km</option>
-                        <option>Within 25km</option>
-                        <option>Any distance</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select class="form-select" id="sortBy">
-                        <option selected>Sort By</option>
-                        <option>Newest</option>
-                        <option>Most Popular</option>
-                        <option>Closest</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <button class="btn btn-primary w-100">Apply Filters</button>
-                </div>
-            </div>
-        </div>
+<!-- Navigation Tabs -->
+<ul class="nav nav-tabs flex-column">
+    <li class="nav-item">
+        <a class="nav-link active" href="/discover">
+            <i class="fas fa-users"></i>
+            <span class="d-none d-md-inline"> Discover</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/chats">
+            <i class="fas fa-comments"></i>
+            <span class="d-none d-md-inline"> Chats</span>
+        </a>
+    </li>
+</ul>
 
-        <!-- Profiles Grid -->
-        <div class="row" th:each="user : ${users}">
-            <div class="col-md-4">
-                <div class="profile-card">
-                    <img th:src="${user.photos != null and !user.photos.isEmpty()} ? ${user.photos[0].photoUrl} : '/images/default-profile.jpg'"
-                         class="profile-image w-100" alt="Profile Photo">
-                    <div class="profile-info">
-                        <div class="profile-name" th:text="${user.profile.name}">
-                            John Doe
-                        </div>
-                        <div class="profile-details">
-                            <p th:text="${user.profile.age + ' years old'}">25 years old</p>
-                            <p th:text="${user.profile.city}">New York, USA</p>
-                            <p th:text="${user.profile.bio}">Short bio about the person...</p>
-                        </div>
-                        <div class="action-buttons">
-                            <form th:action="@{/like/{id}(id=${user.id})}" method="post" style="display:inline;">
-                                <button type="submit" class="btn btn-like flex-grow-1">
-                                    <i class="fas fa-heart"></i> Like
-                                </button>
-                            </form>
-                            <button class="btn btn-message flex-grow-1">
-                                <i class="fas fa-comment"></i> Message
-                            </button>
-                        </div>
-                    </div>
-                </div>
+<div class="container py-5">
+    <h1 class="text-center mb-4">Discover People</h1>
+
+    <!-- Filters Section -->
+    <div class="filters mb-4">
+        <div class="row">
+            <div class="col-md-6">
+                <select class="form-select" id="ageRange">
+                    <option selected>Age Range</option>
+                    <option>18-25</option>
+                    <option>26-35</option>
+                    <option>36-45</option>
+                    <option>46+</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <select class="form-select" id="distance">
+                    <option selected>Distance</option>
+                    <option>Within 5km</option>
+                    <option>Within 10km</option>
+                    <option>Within 25km</option>
+                    <option>Any distance</option>
+                </select>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Profile Carousel -->
+    <div class="profile-container">
+        <div class="profile-card" th:each="user, iterStat : ${users}"
+             th:if="${iterStat.index == currentIndex}">
+            <img th:src="${user.photos != null and !user.photos.isEmpty()} ? ${user.photos[0].photoUrl} : '/images/default-profile.jpg'"
+                 class="profile-image" alt="Profile Photo">
+            <div class="profile-info">
+                <div class="profile-name" th:text="${user.profile.name}">
+                    John Doe
+                </div>
+                <div class="profile-details">
+                    <p th:text="${user.profile.age + ' years old'}">25 years old</p>
+                    <p th:text="${user.profile.city}">New York, USA</p>
+                    <p th:text="${user.profile.bio}">Short bio about the person...</p>
+                </div>
+                <div class="action-buttons">
+                    <form th:action="@{/like/{id}(id=${user.id})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-like flex-grow-1">
+                            <i class="fas fa-heart"></i> Like
+                        </button>
+                    </form>
+                    <a th:href="@{/chats/{id}(id=${user.id})}" class="btn btn-message flex-grow-1">
+                        <i class="fas fa-comment"></i> Message
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation-arrows">
+            <button class="arrow-btn"
+                    onclick="window.location.href='/discover?index=' + (/*[[${currentIndex}]]*/ 0 > 0 ? /*[[${currentIndex}]]*/ 0 - 1 : 0)">
+                <i class="fas fa-chevron-left fa-lg"></i>
+            </button>
+            <button class="arrow-btn"
+                    onclick="window.location.href='/discover?index=' + (/*[[${currentIndex}]]*/ 0 < /*[[${users.size()}]]*/ 0 - 1 ? /*[[${currentIndex}]]*/ 0 + 1 : /*[[${users.size()}]]*/ 0 - 1)">
+                <i class="fas fa-chevron-right fa-lg"></i>
+            </button>
+        </div>
+
+
+
+
+        <div class="profile-indicator">
+            <span th:text="${currentIndex + 1} + ' / ' + ${users.size()}">1 / 10</span>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function nextProfile() {
+        var currentIndex = /*[[${currentIndex}]]*/ 0; // Получаем значение currentIndex из Thymeleaf
+        window.location.href = '/discover?index=' + (currentIndex + 1);
+    }
+
+    function prevProfile() {
+        var currentIndex = /*[[${currentIndex}]]*/ 0; // Получаем значение currentIndex из Thymeleaf
+        if(currentIndex > 0) {
+            window.location.href = '/discover?index=' + (currentIndex - 1);
+        }
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'ArrowRight') {
+            nextProfile();
+        } else if (event.key === 'ArrowLeft') {
+            prevProfile();
+        }
+    });
+</script>
+
 </body>
-</html> 
+</html>
