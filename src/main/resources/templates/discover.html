@@ -109,13 +109,13 @@
                     <img th:src="${user.photos != null and !user.photos.isEmpty()} ? ${user.photos[0].photoUrl} : '/images/default-profile.jpg'"
                          class="profile-image w-100" alt="Profile Photo">
                     <div class="profile-info">
-                        <div class="profile-name" th:text="${user.profile.name}">
+                        <div class="profile-name" th:text="${user.profile != null ? user.profile.name : 'Anonymous'}">
                             John Doe
                         </div>
                         <div class="profile-details">
-                            <p th:text="${user.profile.age + ' years old'}">25 years old</p>
-                            <p th:text="${user.profile.city}">New York, USA</p>
-                            <p th:text="${user.profile.bio}">Short bio about the person...</p>
+                            <p th:text="${user.profile != null ? (user.profile.age + ' years old') : 'Age not specified'}">25 years old</p>
+                            <p th:text="${user.profile != null ? user.profile.city : 'City not specified'}">New York, USA</p>
+                            <p th:text="${user.profile != null ? user.profile.bio : 'No bio available'}">Short bio about the person...</p>
                         </div>
                         <div class="action-buttons">
                             <form th:action="@{/like/{id}(id=${user.id})}" method="post" style="display:inline;">
