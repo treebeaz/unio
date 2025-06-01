@@ -61,30 +61,24 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
         http
-                // Интеграция с сервисом пользователей
-                .userDetailsService(userDetailsService)
-
-                // Настройка авторизации запросов
                 .authorizeHttpRequests(auth -> auth
-                        // Публичные маршруты
-                        .requestMatchers("/", "/home", "/login", "/register", "/css/**",
-                                "/images/**", "/profile/create", "/discover").permitAll()
-                        // Все остальные запросы требуют аутентификации
+                        .requestMatchers("/", "/home", "/login", "/register", "/css/**", "/images/**").permitAll()
+                        .requestMatchers("/profile/**", "/discover").authenticated()
                         .anyRequest().hasAuthority("ROLE_USER")
                 )
-
-                // Настройка формы входа
                 .formLogin(form -> form
-                        .loginPage("/login")               // Кастомная страница входа
-                        .defaultSuccessUrl("/discover", true) // Перенаправление после входа
-                        .permitAll()                       // Разрешить доступ к странице входа всем
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/discover", true)
+                        .successHandler((request, response, authentication) -> {
+                            response.sendRedirect("/discover");
+                        })
+                        .permitAll()
                 )
-
-                // Настройка выхода
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/?logout")     // Перенаправление после выхода
-                        .permitAll()                      // Разрешить выход всем аутентифицированным
-                );
+                        .logoutSuccessUrl("/?logout")
+                        .permitAll()
+                )
+                .userDetailsService(userDetailsService);
 
         return http.build();
     }

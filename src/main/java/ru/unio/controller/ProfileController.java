@@ -2,7 +2,6 @@ package ru.unio.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -15,10 +14,7 @@ import ru.unio.entity.User;
 import ru.unio.entity.UserPhoto;
 import ru.unio.entity.UserProfile;
 import ru.unio.repository.UserPhotoRepository;
-import ru.unio.service.UserPhotoService;
 import ru.unio.service.UserProfileService;
-
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -75,7 +71,7 @@ public class ProfileController {
     @GetMapping
     public String viewProfilePage(@AuthenticationPrincipal User user, Model model) {
         if (!userProfileService.profileExists(user)) {
-            return "redirect:/profile/create";
+            return "redirect:/discover";
         }
 
         model.addAttribute("profile", userProfileService.getUserProfile(user));
@@ -103,7 +99,7 @@ public class ProfileController {
                                         Model model,
                                         @RequestParam(value = "step", defaultValue = "photo") String step) {
         if(userProfileService.profileExists(user)) {
-            return "redirect:/profile";
+            return "redirect:/discover";
         }
 
         model.addAttribute("profile", new UserProfile());

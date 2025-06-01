@@ -35,6 +35,7 @@ import java.util.List;
  * </ul>
  */
 @Service
+@Transactional
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -72,7 +73,6 @@ public class UserService {
      * @throws IllegalArgumentException если логин уже занят
      * @throws DataIntegrityViolationException при нарушении ограничений базы данных
      */
-    @Transactional
     public void registerUser(String username, String password) {
         try {
             userRepository.lockTableForWrite();
@@ -92,6 +92,14 @@ public class UserService {
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
-
     }
- }
+
+    public User getCurrentUser(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Пользователя не существует"));
+    }
+
+    public List<User> getDiscoverableUsers(Long userId) {
+        return userRepository.findDiscoverableUsers(userId);
+    }
+}

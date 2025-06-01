@@ -1,6 +1,5 @@
 package ru.unio.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,10 +9,13 @@ import ru.unio.entity.User;
 import ru.unio.service.LikeService;
 
 @Controller
-@RequiredArgsConstructor
 public class LikeController {
 
     private final LikeService likeService;
+
+    public LikeController(LikeService likeService) {
+        this.likeService = likeService;
+    }
 
     @PostMapping("/like/{id}")
     public String likeUser(@AuthenticationPrincipal User user,

@@ -1,8 +1,6 @@
 package ru.unio.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-
 /**
  * Сущность, представляющая фотографию пользователя.
  *

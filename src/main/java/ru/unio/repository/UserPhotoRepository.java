@@ -1,6 +1,8 @@
 package ru.unio.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.unio.entity.UserPhoto;
 
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.Optional;
  *   <li>Работает с сущностью {@link UserPhoto}</li>
  * </ul>
  */
+@Repository
 public interface UserPhotoRepository extends JpaRepository<UserPhoto, Long> {
 
     /**

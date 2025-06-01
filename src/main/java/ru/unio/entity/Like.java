@@ -1,12 +1,10 @@
 package ru.unio.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "likes")
-@Data
 public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,5 +24,37 @@ public class Like {
     @PrePersist
     protected void onCreate() {
         likedTime = LocalDateTime.now();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public User getLikedUser() {
+        return likedUser;
+    }
+
+    public void setLikedUser(User likedUser) {
+        this.likedUser = likedUser;
+    }
+
+    public LocalDateTime getLikedTime() {
+        return likedTime;
+    }
+
+    public void setLikedTime(LocalDateTime likedTime) {
+        this.likedTime = likedTime;
     }
 }

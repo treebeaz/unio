@@ -1,6 +1,5 @@
 package ru.unio.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,9 +11,12 @@ import ru.unio.service.LikeService;
 import java.util.List;
 
 @Controller
-@RequiredArgsConstructor
 public class MatchController {
     private final LikeService likeService;
+
+    public MatchController(LikeService likeService) {
+        this.likeService = likeService;
+    }
 
     @GetMapping("/matches")
     public String getMatches(@AuthenticationPrincipal User user, Model model) {

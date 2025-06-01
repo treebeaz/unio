@@ -1,12 +1,10 @@
 package ru.unio.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "matches")
-@Data
 public class Match {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,5 +24,37 @@ public class Match {
     @PrePersist
     protected void onCreate() {
         matchedTime = LocalDateTime.now();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public User getFirstUser() {
+        return firstUser;
+    }
+
+    public void setFirstUser(User firstUser) {
+        this.firstUser = firstUser;
+    }
+
+    public User getSecondUser() {
+        return secondUser;
+    }
+
+    public void setSecondUser(User secondUser) {
+        this.secondUser = secondUser;
+    }
+
+    public LocalDateTime getMatchedTime() {
+        return matchedTime;
+    }
+
+    public void setMatchedTime(LocalDateTime matchedTime) {
+        this.matchedTime = matchedTime;
     }
 }

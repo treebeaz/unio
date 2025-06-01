@@ -32,6 +32,7 @@ import java.util.List;
  * </ul>
  */
 @Service
+@Transactional
 public class UserProfileService {
     private final UserProfileRepository userProfileRepository;
     private final UserRepository userRepository;
@@ -66,7 +67,6 @@ public class UserProfileService {
      * @param profile данные профиля
      * @throws RuntimeException если пользователь не найден
      */
-    @Transactional
     public void createProfile(User user, UserProfile profile) {
         userProfileRepository.findAndLockByUsername(user.getUsername());
 
@@ -89,7 +89,6 @@ public class UserProfileService {
      * @param user пользователь, чей профиль требуется получить
      * @return существующий или новый профиль пользователя
      */
-    @Transactional
     public UserProfile getUserProfile(User user) {
         return userProfileRepository.findByUser(user)
                 .orElseGet(() -> {
@@ -122,7 +121,6 @@ public class UserProfileService {
      * @param profile новые данные профиля
      * @param photos новая фотография профиля (опционально)
      */
-    @Transactional
     public void updateUserProfile(User user, UserProfile profile, MultipartFile photos) {
         // Реализация обновления профиля
     }
@@ -140,7 +138,6 @@ public class UserProfileService {
      * @param user пользователь для удаления
      * @throws RuntimeException если профиль пользователя не найден
      */
-    @Transactional
     public void deleteUserWithProfile(User user) {
         UserProfile profile = userProfileRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Unable to find user when deleting profile"));

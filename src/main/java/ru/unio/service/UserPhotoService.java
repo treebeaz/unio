@@ -1,6 +1,5 @@
 package ru.unio.service;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +32,7 @@ import java.util.Objects;
  * </ul>
  */
 @Service
+@Transactional
 public class UserPhotoService {
 
     private final UserPhotoRepository userPhotoRepository;
@@ -80,7 +80,6 @@ public class UserPhotoService {
      * @throws IOException при ошибках работы с файловой системой
      * @throws NullPointerException если имя файла не содержит расширения
      */
-    @Transactional
     public void savePhoto(User user, MultipartFile photo, String uploadDir) throws IOException {
         if(!photo.isEmpty()) {
             // Генерация уникального имени файла

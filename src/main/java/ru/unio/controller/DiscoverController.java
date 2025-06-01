@@ -6,9 +6,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.unio.entity.User;
-import ru.unio.service.UserService;
 import ru.unio.service.UserProfileService;
+import ru.unio.service.UserService;
 
 import java.util.List;
 
@@ -26,14 +27,36 @@ public class DiscoverController {
     }
 
     @GetMapping
-    public String discoverPage(@AuthenticationPrincipal User user, Model model) {
-        if (!userProfileService.profileExists(user)) {
+    public String discoverPage(@AuthenticationPrincipal User user, @RequestParam(defaultValue = "0") int index,
+                               Model model) {
+        if(!userProfileService.profileExists(user)){
             return "redirect:/profile/create";
         }
 
-        List<User> users = userService.getAllUsers();
-        System.out.println(users);
+
+        List<User> users = userService.getDiscoverableUsers(user.getId());
+        if(users.isEmpty()) {
+            model.addAttribute("error", "Анкеты закончились");
+            return "discover";
+        }
+
+        index = normalizeIndex(index, users.size());
+
+        User currentUser = userService.getCurrentUser(user.getUsername());
+        model.addAttribute("currentUser", currentUser);
         model.addAttribute("users", users);
+        model.addAttribute("currentIndex", index);
+
         return "discover";
+    }
+
+    private int normalizeIndex(int index, int listSize) {
+        if (index < 0) {
+            return 0;
+        }
+        if (index >= listSize) {
+            return listSize - 1;
+        }
+        return index;
     }
 } 
