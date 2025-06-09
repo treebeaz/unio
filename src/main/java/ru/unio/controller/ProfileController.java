@@ -23,6 +23,8 @@ import ru.unio.service.UserProfileService;
 import ru.unio.service.UserService;
 
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.*;
 
 /**
@@ -134,6 +136,9 @@ public class ProfileController {
     ) {
         User user = userService.getCurrentUser(principal.getName());
 
+        if (updatedProfile.getBirthDate() != null) {
+            updatedProfile.setAge(Period.between(updatedProfile.getBirthDate(), LocalDate.now()).getYears());
+        }
         // 1. Обновляем основные данные профиля
         userProfileService.updateProfile(user, updatedProfile);
 
@@ -152,7 +157,7 @@ public class ProfileController {
         }
 
         redirectAttributes.addFlashAttribute("success", "Профиль обновлен");
-        return "redirect:/profile/edit";
+        return "redirect:/profile";
     }
 
     /**
@@ -199,7 +204,13 @@ public class ProfileController {
                                 @ModelAttribute UserProfile profileData,
                                 @RequestParam(value = "interests", required = false) List<String> interests,
                                 RedirectAttributes redirectAttributes) {
-        userProfileService.createProfile(user, profileData, interests); // Передаем интересы в сервис
+
+        if (profileData.getBirthDate() != null) {
+            profileData.setAge(Period.between(profileData.getBirthDate(), LocalDate.now()).getYears());
+        }
+        System.out.println(profileData.getAge());
+
+        userProfileService.createProfile(user, profileData, interests);
         redirectAttributes.addFlashAttribute("step", "info");
 
         return "redirect:/profile";

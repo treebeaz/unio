@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.unio.entity.User;
+import ru.unio.entity.UserInterests;
 import ru.unio.entity.UserProfile;
 import ru.unio.service.InterestLoader;
 import ru.unio.service.UserProfileService;
@@ -37,6 +38,8 @@ public class DiscoverController {
                                @RequestParam(required = false) List<String> interests,
                                @RequestParam(required = false) String gender,
                                @RequestParam(required = false) String city,
+                               @RequestParam(required = false) Integer minAge,
+                               @RequestParam(required = false) Integer maxAge,
                                Model model) {
 
         if(!userProfileService.profileExists(user)) {
@@ -46,22 +49,23 @@ public class DiscoverController {
         UserProfile userProfile = userProfileService.getUserProfile(user);
         model.addAttribute("userProfile", userProfile);
 
+
         // Получаем все доступные интересы для фильтров
         List<String> allInterests = interestLoader.getInterests();
         model.addAttribute("allInterests", allInterests);
 
-        System.out.println("xui");
-        System.out.println(interests);
         // Получаем список городов
         List<String> cities = List.of("Москва", "Санкт-Петербург", "Казань", "Новосибирск");
         model.addAttribute("cities", cities);
 
         // Фильтрация пользователей
-        List<User> users = userService.getFilteredUsers(
+        List<User> users = userProfileService.getFilteredUsers(
                 user.getId(),
                 interests,
                 gender,
-                city
+                city,
+                minAge,
+                maxAge
         );
 
         if(users.isEmpty()) {

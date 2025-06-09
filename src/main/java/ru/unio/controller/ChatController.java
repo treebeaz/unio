@@ -70,4 +70,6 @@ public class ChatController {
         messageRepository.save(message);
         return "redirect:/chats/" + chatId;
     }
+
+
 }

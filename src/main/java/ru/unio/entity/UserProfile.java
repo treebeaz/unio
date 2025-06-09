@@ -65,7 +65,7 @@ public class UserProfile {
      *   <li>Должен вычисляться на основе {@code birthDate}</li>
      * </ul>
      */
-    @Column(name = "age", insertable = false, updatable = false)
+    @Column(name = "age")
     private Integer age;
 
     /**

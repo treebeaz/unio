@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <meta charset="UTF-8">
     <title>Discover People - Unio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -540,9 +542,13 @@
 <nav class="top-navbar d-flex justify-content-between align-items-center">
     <div class="logo animate__animated animate__fadeIn">Unio</div>
     <div class="nav-links d-flex align-items-center">
-        <a href="/discover" class="animate__animated animate__fadeIn animate__delay-1s">Анкеты</a>
-        <a href="/chats" class="animate__animated animate__fadeIn animate__delay-1s">Чаты</a>
-        <a href="/profile" class="btn btn-outline-primary btn-sm rounded-pill ms-3 animate__animated animate__fadeIn animate__delay-2s">
+        <a href="/discover" class="btn btn-outline-primary btn-sm rounded-pill me-2 animate__animated animate__fadeIn animate__delay-1s">
+            <i class="fas fa-search me-1"></i> Анкеты
+        </a>
+        <a href="/chats" class="btn btn-outline-primary btn-sm rounded-pill me-2 animate__animated animate__fadeIn animate__delay-1s">
+            <i class="fas fa-comments me-1"></i> Чаты
+        </a>
+        <a href="/profile" class="btn btn-outline-primary btn-sm rounded-pill animate__animated animate__fadeIn animate__delay-2s">
             <i class="fas fa-user me-1"></i> Профиль
         </a>
     </div>
@@ -565,20 +571,17 @@
 
                     <div class="profile-card animate__animated animate__fadeIn"
                          th:each="user, iterStat : ${users}"
-                         th:attr="data-index=${iterStat.index}"
+                         th:attr="data-index=${iterStat.index}, data-user-id=${user.id}"
                          th:classappend="${iterStat.index != currentIndex} ? ' d-none'">
                         <div class="floating-hearts" id="hearts-container-${iterStat.index}"></div>
                         <div class="profile-image-container">
                             <img th:src="${user.photos != null and !user.photos.isEmpty()} ? ${user.photos[0].photoUrl} : '/images/default-profile.jpg'"
                                  class="profile-image" alt="Profile Photo">
-                            <div class="profile-badge">
-                                <i class="fas fa-star"></i> Популярный
-                            </div>
                         </div>
                         <div class="profile-info">
                             <div class="profile-name-age">
                                 <h2 class="profile-name" th:text="${user.profile.name}"></h2>
-                                <span class="profile-age" th:text="${user.profile.age}"></span>
+                                <span class="profile-age" th:text="' возраст ' + ${user.profile.age}"></span>
                             </div>
                             <div class="profile-location">
                                 <i class="fas fa-map-marker-alt"></i>
@@ -598,11 +601,12 @@
                             <i class="fas fa-chevron-left fa-lg"></i> Назад
                         </button>
 
-                        <form th:action="@{/like/{id}(id=${users[currentIndex].id})}" method="post" style="display:inline;">
+                        <form id="likeForm" method="post" style="display:inline;">
                             <button type="submit" class="btn-like animate-bounce" id="likeBtn">
                                 <i class="fas fa-heart"></i>
                             </button>
                         </form>
+
 
                         <button class="arrow-btn" onclick="nextProfile()" id="nextBtn">
                             Следующий <i class="fas fa-chevron-right fa-lg"></i>
@@ -640,6 +644,20 @@
                 </div>
 
                 <div class="mb-4">
+                    <label class="form-label">Возраст</label>
+                    <div class="row g-2">
+                        <div class="col">
+                            <input type="number" class="form-control" placeholder="От"
+                                   th:value="${param.minAge}" name="minAge" min="18" max="100">
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control" placeholder="До"
+                                   th:value="${param.maxAge}" name="maxAge" min="18" max="100">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
                     <label class="form-label">Пол</label>
                     <div class="form-check mb-2">
                         <input class="form-check-input" type="radio" name="gender"
@@ -660,6 +678,8 @@
                         <label class="form-check-label" for="genderFemale">Женский</label>
                     </div>
                 </div>
+
+
 
                 <div class="mb-4">
                     <label class="form-label">Интересы</label>
@@ -747,6 +767,8 @@
             }
         });
 
+
+
         if (document.getElementById('prevBtn')) {
             document.getElementById('prevBtn').disabled = currentIndex === 0;
         }
@@ -784,22 +806,24 @@
 
     // Обработка формы фильтров
     document.getElementById('filtersForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
+    e.preventDefault();
 
-        const formData = new FormData(this);
-        const params = new URLSearchParams();
+    const formData = new FormData(this);
+    const params = new URLSearchParams();
 
-        // Добавляем все чекбоксы интересов
-        document.querySelectorAll('input[name="interests"]:checked').forEach(checkbox => {
-            params.append('interests', checkbox.value);
-        });
-
-        // Добавляем другие параметры
-        if (formData.get('city')) params.append('city', formData.get('city'));
-        if (formData.get('gender')) params.append('gender', formData.get('gender'));
-
-        window.location.href = window.location.pathname + '?' + params.toString();
+    // Добавляем все чекбоксы интересов
+    document.querySelectorAll('input[name="interests"]:checked').forEach(checkbox => {
+        params.append('interests', checkbox.value);
     });
+
+    // Добавляем другие параметры
+    if (formData.get('city')) params.append('city', formData.get('city'));
+    if (formData.get('gender')) params.append('gender', formData.get('gender'));
+    if (formData.get('minAge')) params.append('minAge', formData.get('minAge'));
+    if (formData.get('maxAge')) params.append('maxAge', formData.get('maxAge'));
+
+    window.location.href = window.location.pathname + '?' + params.toString();
+});
 
     // Эффект при скролле для навбара
     window.addEventListener('scroll', function() {
@@ -821,6 +845,30 @@
             }, 3000);
         }
     });
+document.getElementById('likeForm')?.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const currentCard = document.querySelector('.profile-card:not(.d-none)');
+    const likedUserId = currentCard?.getAttribute('data-user-id');
+    if (!likedUserId) return;
+
+    const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+
+    const form = document.createElement('form');
+    form.method = 'post';
+    form.action = `/like/${likedUserId}`;
+
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = '_csrf';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+
+    document.body.appendChild(form);
+    form.submit();
+});
+
+
 </script>
 
 </body>

@@ -1,6 +1,9 @@
 package ru.unio.service;
 
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,11 +12,9 @@ import ru.unio.entity.User;
 import ru.unio.entity.UserInterests;
 import ru.unio.entity.UserPhoto;
 import ru.unio.entity.UserProfile;
-import ru.unio.repository.UserInterestsRepository;
-import ru.unio.repository.UserPhotoRepository;
-import ru.unio.repository.UserProfileRepository;
-import ru.unio.repository.UserRepository;
+import ru.unio.repository.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +44,7 @@ public class UserProfileService {
     private final UserRepository userRepository;
     private final UserPhotoRepository userPhotoRepository;
     private final UserInterestsRepository userInterestsRepository;
+    private final LikeRepository likeRepository;  // Add this
     private final UserInterests userInterests;
 
     /**
@@ -56,11 +58,13 @@ public class UserProfileService {
                               UserRepository userRepository,
                               UserPhotoRepository userPhotoRepository,
                               UserInterestsRepository userInterestsRepository,
+                              LikeRepository likeRepository,
                               UserInterests userInterests) {
         this.userProfileRepository = userProfileRepository;
         this.userRepository = userRepository;
         this.userPhotoRepository = userPhotoRepository;
         this.userInterestsRepository = userInterestsRepository;
+        this.likeRepository = likeRepository;
         this.userInterests = userInterests;
     }
 
@@ -113,12 +117,79 @@ public class UserProfileService {
                 .toList(); // Преобразуем в список
     }
 
+
     public void deleteListUserInterests(User user){
         userInterestsRepository.deleteAllInterestsByUser(user.getId());
     }
 
     public void save(UserInterests userInterests) {
         userInterestsRepository.save(userInterests);
+    }
+
+    public List<User> getFilteredUsers(Long currentUserId,
+                                       List<String> interests,
+                                       String gender,
+                                       String city,
+                                       Integer minAge,
+                                       Integer maxAge) {
+
+        List<Long> likedUserIds = likeRepository.findByUser(userRepository.findById(currentUserId).orElseThrow())
+                .stream()
+                .map(like -> like.getLikedUser().getId())
+                .toList();
+
+        // Базовое условие - исключаем текущего пользователя
+        Specification<User> spec = Specification.where((root, query, cb) ->
+                cb.notEqual(root.get("id"), currentUserId));
+
+        // Исключаем пользователей, которых уже лайкнули
+        if (!likedUserIds.isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.not(root.get("id").in(likedUserIds)));
+        }
+
+        // Фильтр по полу
+        if (gender != null && !gender.isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("profile").get("gender"), gender));
+        }
+
+        // Фильтр по городу
+        if (city != null && !city.isEmpty() && !city.equals("Любой город")) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("profile").get("city"), city));
+        }
+
+        // Фильтр по минимальному возрасту
+        if (minAge != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.greaterThanOrEqualTo(root.get("profile").get("age"), minAge));
+        }
+
+        // Фильтр по максимальному возрасту
+        if (maxAge != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.lessThanOrEqualTo(root.get("profile").get("age"), maxAge));
+        }
+
+        if (interests != null && !interests.isEmpty()) {
+            spec = spec.and((root, query, cb) -> {
+                // Создаем join к таблице UserInterests
+                Join<User, UserInterests> userInterestsJoin = root.join("userInterests");
+
+                // Используем оператор MEMBER OF для каждого интереса
+                List<Predicate> interestPredicates = new ArrayList<>();
+                for (String interest : interests) {
+                    interestPredicates.add(cb.isMember(interest, userInterestsJoin.get("interests")));
+                }
+
+                // Объединяем условия через OR (хотя бы один интерес должен совпадать)
+                return cb.or(interestPredicates.toArray(new Predicate[0]));
+            });
+        }
+
+
+        return userRepository.findAll(spec);
     }
 
     /**

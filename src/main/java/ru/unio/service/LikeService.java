@@ -56,24 +56,22 @@ public class LikeService {
 
         if (mutualLike != null) {
             Match existingMatch = matchRepository.findByUsers(user, likedUser);
-//            System.out.println("krut1");
+            if (existingMatch == null) {
+                Match match = new Match();
+                match.setFirstUser(user.getId() < likedUser.getId() ? user : likedUser);
+                match.setSecondUser(user.getId() < likedUser.getId() ? likedUser : user);
+                matchRepository.save(match);
 
-//            if (existingMatch == null) {
-            System.out.println("krut2");
-            Match match = new Match();
-            match.setFirstUser(user.getId() < likedUser.getId() ? user : likedUser);
-            match.setSecondUser(user.getId() < likedUser.getId() ? likedUser : user);
-            matchRepository.save(match);
-            System.out.println("Создан мэтч между user=" + user.getId() + " и likedUser=" + likedUser.getId());
-            Chat chat = new Chat();
-            chat.setUser1(user.getId() < likedUser.getId() ? user : likedUser);
-            chat.setUser2(user.getId() < likedUser.getId() ? likedUser : user);
-            chatRepository.save(chat);
-            System.out.println("Создан чат между user=" + user.getId() + " и likedUser=" + likedUser.getId());
+                Chat chat = new Chat();
+                chat.setUser1(user.getId() < likedUser.getId() ? user : likedUser);
+                chat.setUser2(user.getId() < likedUser.getId() ? likedUser : user);
+                chatRepository.save(chat);
 
-//            } else {
-//                System.out.println("Мэтч уже существует между user=" + user.getId() + " и likedUser=" + likedUser.getId());
-//            }
+                System.out.println("Создан мэтч и чат между user=" + user.getId() + " и likedUser=" + likedUser.getId());
+            } else {
+                System.out.println("Мэтч уже существует между user=" + user.getId() + " и likedUser=" + likedUser.getId());
+            }
+
         }
         return like;
     }
