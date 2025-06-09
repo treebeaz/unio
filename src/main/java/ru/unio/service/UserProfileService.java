@@ -1,17 +1,22 @@
 package ru.unio.service;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.unio.entity.User;
+import ru.unio.entity.UserInterests;
 import ru.unio.entity.UserPhoto;
 import ru.unio.entity.UserProfile;
+import ru.unio.repository.UserInterestsRepository;
 import ru.unio.repository.UserPhotoRepository;
 import ru.unio.repository.UserProfileRepository;
 import ru.unio.repository.UserRepository;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Сервис для управления профилями пользователей.
@@ -37,6 +42,8 @@ public class UserProfileService {
     private final UserProfileRepository userProfileRepository;
     private final UserRepository userRepository;
     private final UserPhotoRepository userPhotoRepository;
+    private final UserInterestsRepository userInterestsRepository;
+    private final UserInterests userInterests;
 
     /**
      * Конструктор с внедрением зависимостей.
@@ -47,10 +54,14 @@ public class UserProfileService {
      */
     public UserProfileService(UserProfileRepository userProfileRepository,
                               UserRepository userRepository,
-                              UserPhotoRepository userPhotoRepository) {
+                              UserPhotoRepository userPhotoRepository,
+                              UserInterestsRepository userInterestsRepository,
+                              UserInterests userInterests) {
         this.userProfileRepository = userProfileRepository;
         this.userRepository = userRepository;
         this.userPhotoRepository = userPhotoRepository;
+        this.userInterestsRepository = userInterestsRepository;
+        this.userInterests = userInterests;
     }
 
     /**
@@ -67,14 +78,47 @@ public class UserProfileService {
      * @param profile данные профиля
      * @throws RuntimeException если пользователь не найден
      */
-    public void createProfile(User user, UserProfile profile) {
+    public void createProfile(User user, UserProfile profile, List<String> interests) {
         userProfileRepository.findAndLockByUsername(user.getUsername());
 
         User attachedUser = userRepository.findByUsername(user.getUsername())
                 .orElseThrow(() -> new RuntimeException("Unable to find user when creating profile"));
 
         profile.setUser(attachedUser);
+
         userProfileRepository.save(profile);
+
+        if (interests != null) {
+            addInterestToUser(attachedUser, interests);
+        }
+    }
+
+    public void addInterestToUser(User user, List<String> interests) {
+        for (String interest : interests) {
+            UserInterests userInterests = new UserInterests();
+            userInterests.setUser(user);
+            userInterests.setInterests(Set.of(interest)); // Используем Set для хранения интересов
+
+            userInterestsRepository.save(userInterests);
+        }
+
+    }
+
+    public List<String> getListUserInterests(User user) {
+        // Получаем интересы пользователя из репозитория
+        return userInterestsRepository.findByUserId(user.getId())
+                .stream()
+                .flatMap(userInterests -> userInterests.getInterests().stream())
+                .distinct() // Убираем дубликаты, если нужно
+                .toList(); // Преобразуем в список
+    }
+
+    public void deleteListUserInterests(User user){
+        userInterestsRepository.deleteAllInterestsByUser(user.getId());
+    }
+
+    public void save(UserInterests userInterests) {
+        userInterestsRepository.save(userInterests);
     }
 
     /**
@@ -124,6 +168,17 @@ public class UserProfileService {
     public void updateUserProfile(User user, UserProfile profile, MultipartFile photos) {
         // Реализация обновления профиля
     }
+
+    public void updateProfile(User user, UserProfile updated) {
+        UserProfile userProfile = user.getProfile();
+        userProfile.setName(updated.getName());
+        userProfile.setAge(updated.getAge());
+        userProfile.setCity(updated.getCity());
+        userProfile.setGender(updated.getGender());
+        userProfile.setBio(updated.getBio());
+        userProfileRepository.save(userProfile);
+    }
+
 
     /**
      * Удаляет пользователя и все связанные с ним данные.

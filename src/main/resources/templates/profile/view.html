@@ -20,6 +20,33 @@
             color: var(--dark-color);
         }
 
+        .navbar-custom {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-around;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-custom a {
+            color: var(--dark-color);
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: color 0.2s;
+        }
+
+        .navbar-custom a:hover {
+            color: var(--primary-color);
+        }
+
+        .navbar-custom .active {
+            color: var(--primary-color);
+        }
+
         .profile-container {
             max-width: 800px;
             margin: 30px auto;
@@ -46,23 +73,6 @@
             font-weight: 700;
             margin: 0;
             font-size: 1.8rem;
-        }
-
-        .btn-back {
-            position: absolute;
-            left: 20px;
-            top: 20px;
-            color: white;
-            background: rgba(255,255,255,0.2);
-            border: none;
-            border-radius: 50px;
-            padding: 8px 15px;
-            transition: all 0.3s;
-        }
-
-        .btn-back:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateX(-3px);
         }
 
         .profile-content {
@@ -213,24 +223,34 @@
                 width: 100%;
                 margin-bottom: 5px;
             }
+
+            .navbar-custom {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
 <body>
+
+<!-- Меню сверху -->
+<div class="navbar-custom">
+    <a href="/discover"><i class="fas fa-compass"></i> Discover</a>
+    <a href="/chats"><i class="fas fa-comments"></i> Chats</a>
+    <a href="/profile/view" class="active"><i class="fas fa-user"></i> Profile</a>
+</div>
+
+<!-- Контент профиля -->
 <div class="profile-container">
     <div class="profile-card">
         <div class="profile-header">
-            <a href="/discover" class="btn btn-back"><i class="fas fa-arrow-left"></i> Назад</a>
             <h1>Мой профиль</h1>
         </div>
 
         <div class="profile-content">
-            <!-- Блок с фото и именем -->
             <div class="profile-main-info">
                 <div class="profile-photo">
-                    <img th:if="${mainPhotoUrl}"
-                         th:src="@{${mainPhotoUrl}}"
-                         alt="Фото профиля">
+                    <img th:if="${mainPhotoUrl}" th:src="@{${mainPhotoUrl}}" alt="Фото профиля">
                     <div th:unless="${mainPhotoUrl}" class="no-photo">
                         <i class="fas fa-user" style="font-size: 3rem; color: #adb5bd;"></i>
                     </div>
@@ -244,7 +264,6 @@
                 </div>
             </div>
 
-            <!-- Детали профиля -->
             <div class="profile-details">
                 <div class="detail-item">
                     <span class="detail-label">Возраст:</span>
@@ -265,8 +284,22 @@
                     <span class="detail-label">О себе:</span>
                     <span class="detail-value" th:text="${profile.bio} ?: 'Не указано'"></span>
                 </div>
-            </div>
 
+                <!-- Отображение интересов -->
+                <div class="detail-item">
+                    <span class="detail-label">Интересы:</span>
+                    <span class="detail-value">
+                        <th:block th:if="${#lists.isEmpty(interests)}">Не указаны</th:block>
+                        <th:block th:unless="${#lists.isEmpty(interests)}">
+                            <ul>
+                                <th:block th:each="interest : ${interests}">
+                                    <li th:text="${interest}"></li>
+                                </th:block>
+                            </ul>
+                        </th:block>
+                    </span>
+                </div>
+            </div>
         </div>
 
         <form th:action="@{/profile/delete}" method="post" id="deleteForm">
@@ -278,13 +311,13 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     function confirmDelete() {
-        if(confirm("Вы уверены, что хотите удалить свой аккаунт? Это действие нельзя отменить.")) {
+        if (confirm("Вы уверены, что хотите удалить свой аккаунт? Это действие нельзя отменить.")) {
             document.getElementById('deleteForm').submit();
         }
     }
 </script>
+
 </body>
 </html>

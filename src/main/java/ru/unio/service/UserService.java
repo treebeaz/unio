@@ -1,13 +1,20 @@
 package ru.unio.service;
 
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.unio.entity.User;
+import ru.unio.entity.UserInterests;
 import ru.unio.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Сервис для управления пользователями системы.
@@ -90,9 +97,50 @@ public class UserService {
         }
     }
 
+    public List<User> getFilteredUsers(Long currentUserId,
+                                       List<String> interests,
+                                       String gender,
+                                       String city) {
+
+        // Базовое условие - исключаем текущего пользователя
+        Specification<User> spec = Specification.where((root, query, cb) ->
+                cb.notEqual(root.get("id"), currentUserId));
+
+        // Фильтр по полу
+        if (gender != null && !gender.isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("profile").get("gender"), gender));
+        }
+
+        // Фильтр по городу
+        if (city != null && !city.isEmpty() && !city.equals("Любой город")) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("profile").get("city"), city));
+        }
+
+        if (interests != null && !interests.isEmpty()) {
+            spec = spec.and((root, query, cb) -> {
+                // Создаем join к таблице UserInterests
+                Join<User, UserInterests> userInterestsJoin = root.join("userInterests");
+
+                // Используем оператор MEMBER OF для каждого интереса
+                List<Predicate> interestPredicates = new ArrayList<>();
+                for (String interest : interests) {
+                    interestPredicates.add(cb.isMember(interest, userInterestsJoin.get("interests")));
+                }
+
+                // Объединяем условия через OR (хотя бы один интерес должен совпадать)
+                return cb.or(interestPredicates.toArray(new Predicate[0]));
+            });
+        }
+
+        return userRepository.findAll(spec);
+    }
+
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
+
 
     public User getCurrentUser(String username) {
         return userRepository.findByUsername(username)

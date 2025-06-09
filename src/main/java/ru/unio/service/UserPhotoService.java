@@ -83,6 +83,7 @@ public class UserPhotoService {
     public void savePhoto(User user, MultipartFile photo, String uploadDir) throws IOException {
         if(!photo.isEmpty()) {
             // Генерация уникального имени файла
+            userPhotoRepository.deleteByUser(user);
             String ext = Objects.requireNonNull(photo.getOriginalFilename())
                     .substring(photo.getOriginalFilename().lastIndexOf("."));
 

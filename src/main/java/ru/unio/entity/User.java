@@ -111,6 +111,17 @@ public class User implements UserDetails {
     @Transient
     private int countPhotos = 0;
 
+    @OneToMany(mappedBy = "user")
+    private List<UserInterests> userInterests;
+
+    public void setUserInterests(List<UserInterests> userInterests) {
+        this.userInterests = userInterests;
+    }
+
+    public List<UserInterests> getUserInterests() {
+        return userInterests;
+    }
+
     /**
      * Получает количество фотографий.
      * @return текущее количество фотографий

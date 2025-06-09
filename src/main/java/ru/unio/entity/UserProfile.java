@@ -66,7 +66,7 @@ public class UserProfile {
      * </ul>
      */
     @Column(name = "age", insertable = false, updatable = false)
-    private int age;
+    private Integer age;
 
     /**
      * Пол пользователя.
@@ -178,7 +178,7 @@ public class UserProfile {
      * Возвращает возраст пользователя.
      * @return возраст (вычисляемое поле)
      */
-    public int getAge() {
+    public Integer getAge() {
         return age;
     }
 
@@ -228,5 +228,9 @@ public class UserProfile {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
     }
 }

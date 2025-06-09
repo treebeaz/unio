@@ -1,8 +1,13 @@
 package ru.unio.repository;
 
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.RequestParam;
+import ru.unio.entity.User;
 import ru.unio.entity.UserPhoto;
 
 import java.util.List;
@@ -49,7 +54,8 @@ public interface UserPhotoRepository extends JpaRepository<UserPhoto, Long> {
      * @param id идентификатор пользователя
      */
     void deleteByUserId(Long id);
-
+    void deleteByUser_Username(String username);
+    void deleteByUser(User user);
     /**
      * Находит главную фотографию пользователя.
      *
@@ -61,4 +67,11 @@ public interface UserPhotoRepository extends JpaRepository<UserPhoto, Long> {
      * @return {@link Optional} с фотографией, если найдена
      */
     Optional<UserPhoto> findByUserIdAndIsMain(Long userId, boolean isMain);
+
+    // Метод для обновления фотографии пользователя
+    @Modifying
+    @Transactional
+    @Query("UPDATE UserPhoto p SET p.photoUrl = :photoUrl WHERE p.user = :user AND p.isMain = true")
+    void updatePhoto(@Param("user") User user, @Param("photoUrl") String photoUrl);
+
 }

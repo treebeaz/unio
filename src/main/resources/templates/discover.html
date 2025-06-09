@@ -2,210 +2,766 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Discover People - Unio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <style>
-        .profile-container {
+        :root {
+            --primary-color: #ff4b6e;
+            --primary-hover: #ff2d55;
+            --secondary-color: #4f46e5;
+            --secondary-hover: #4338ca;
+            --text-dark: #2d3748;
+            --text-medium: #4a5568;
+            --text-light: #718096;
+            --bg-light: #f8f9fa;
+            --bg-card: #ffffff;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        body {
+            background-color: var(--bg-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-medium);
+            line-height: 1.6;
+        }
+
+        .top-navbar {
+            background-color: var(--bg-card);
+            box-shadow: var(--shadow-md);
+            border-bottom: 4px solid var(--primary-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 2rem;
+            transition: var(--transition);
+        }
+
+        .top-navbar.scrolled {
+            padding: 0.5rem 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .top-navbar .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+            transition: var(--transition);
+        }
+
+        .top-navbar .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .top-navbar .nav-links a {
+            margin-left: 1.5rem;
+            color: var(--text-dark);
+            font-weight: 600;
+            text-decoration: none;
             position: relative;
-            max-width: 600px;
-            margin: 0 auto;
+            padding: 0.5rem 0;
+            transition: var(--transition);
         }
-        .profile-card {
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            background: white;
-            overflow: hidden;
+
+        .top-navbar .nav-links a:before {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--primary-color);
+            transition: var(--transition);
         }
-        .profile-image {
-            height: 400px;
-            object-fit: cover;
+
+        .top-navbar .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .top-navbar .nav-links a:hover:before {
             width: 100%;
         }
+
+        .profile-card {
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            background: var(--bg-card);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            height: 100%;
+            position: relative;
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .profile-image-container {
+            position: relative;
+            overflow: hidden;
+            height: 500px;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .profile-image-container:hover .profile-image {
+            transform: scale(1.03);
+        }
+
+        .profile-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
         .profile-info {
-            padding: 20px;
+            padding: 25px;
+            position: relative;
         }
+
+        .profile-name-age {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
         .profile-name {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 10px;
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 0;
+            color: var(--text-dark);
+            letter-spacing: -0.5px;
         }
-        .profile-details {
-            color: #666;
+
+        .profile-age {
+            font-size: 1.4rem;
+            color: var(--text-light);
+        }
+
+        .profile-location {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-light);
             margin-bottom: 15px;
+            font-size: 1.1rem;
         }
+
+        .profile-location i {
+            color: var(--primary-color);
+        }
+
+        .profile-bio {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--text-medium);
+            padding: 15px 0;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            margin: 15px 0;
+        }
+
+        .profile-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .profile-tag {
+            background-color: #f0f2f5;
+            color: var(--text-medium);
+            padding: 7px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .profile-tag:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
         .action-buttons {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .btn-like {
-            background-color: #ff4b6e;
-            color: white;
-        }
-        .btn-like:hover {
-            background-color: #ff2d55;
-            color: white;
-        }
-        .btn-message {
-            background-color: #4b7bec;
-            color: white;
-        }
-        .btn-message:hover {
-            background-color: #3867d6;
-            color: white;
-        }
-        .nav-tabs {
-            position: fixed;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            background: white;
-            border-radius: 0 10px 10px 0;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-        }
-        .nav-tabs .nav-link {
-            padding: 15px;
-            color: #555;
-        }
-        .nav-tabs .nav-link.active {
-            color: #4b7bec;
-            background-color: #f8f9fa;
-        }
-        .nav-tabs .nav-link:hover:not(.active) {
-            color: #4b7bec;
-        }
-        .navigation-arrows {
-            display: flex;
             justify-content: center;
-            gap: 1.5rem;
-            margin-top: 2rem;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            align-items: center;
+        }
+
+        .btn-like {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(255, 75, 110, 0.4);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .btn-like:hover {
+            background-color: var(--primary-hover);
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 12px 25px rgba(255, 45, 85, 0.5);
+        }
+
+        .btn-like:active {
+            transform: scale(0.95);
+        }
+
+        .btn-like i {
+            transition: transform 0.3s ease;
+        }
+
+        .btn-like:hover i {
+            transform: scale(1.2);
         }
 
         .arrow-btn {
-            background-color: #4f46e5; /* Indigo-600 */
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 999px; /* full pill shape */
+            background-color: white;
+            color: var(--secondary-color);
+            border: 2px solid var(--secondary-color);
+            padding: 0.8rem 1.8rem;
+            border-radius: 999px;
             font-size: 1rem;
-            font-weight: 500;
+            font-weight: 600;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            transition: all 0.2s ease-in-out;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
         }
 
         .arrow-btn:hover {
-            background-color: #4338ca; /* Indigo-700 */
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            background-color: var(--secondary-color);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
         }
 
         .arrow-btn:disabled {
-            background-color: #a5b4fc; /* Indigo-300 */
+            background-color: #f0f0f0;
+            color: #aaa;
+            border-color: #ddd;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
-        .filters {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+
+        .main-container {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
         }
-        .profile-indicator {
+
+        .profiles-column {
+            flex: 3;
+        }
+
+        .filters-column {
+            flex: 1;
+        }
+
+        .filters-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            padding: 25px;
+            position: sticky;
+            top: 90px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .filters-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+            padding-bottom: 0.8rem;
+            position: relative;
+        }
+
+        .filters-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 3px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-select, .form-control {
+            border-radius: 10px;
+            padding: 0.6rem 1rem;
+            border: 1px solid rgba(0,0,0,0.1);
+            transition: var(--transition);
+        }
+
+        .form-select:focus, .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(255, 75, 110, 0.2);
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .form-check-label {
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 10px;
+            padding: 0.7rem 1.5rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 75, 110, 0.4);
+        }
+
+        .btn-outline-secondary {
+            border-radius: 10px;
+            padding: 0.7rem 1.5rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-outline-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .progress-indicator {
             text-align: center;
-            margin-top: 15px;
-            color: #666;
+            margin-bottom: 1.5rem;
+            color: var(--text-light);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .progress-indicator span:first-child {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background-color: var(--bg-card);
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .empty-state h3 {
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            color: var(--text-light);
+            max-width: 400px;
+            margin: 0 auto 2rem;
+        }
+
+        .animate-bounce {
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-15px);}
+            60% {transform: translateY(-7px);}
+        }
+
+        .floating-hearts {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+            overflow: hidden;
+            top: 0;
+            left: 0;
+        }
+
+        .heart {
+            position: absolute;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            opacity: 0;
+            animation: float-up 2s ease-out;
+        }
+
+        @keyframes float-up {
+            0% {
+                transform: translateY(0) scale(0.5);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .filters-column {
+                order: -1;
+            }
+
+            .profile-image-container {
+                height: 400px;
+            }
+
+            .top-navbar {
+                padding: 0.7rem 1.5rem;
+            }
+
+            .top-navbar .nav-links a {
+                margin-left: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .profile-image-container {
+                height: 350px;
+            }
+
+            .profile-name {
+                font-size: 1.5rem;
+            }
+
+            .profile-age {
+                font-size: 1.2rem;
+            }
+
+            .action-buttons {
+                gap: 1.5rem;
+            }
+
+            .btn-like {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .arrow-btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-hover);
         }
     </style>
 </head>
-<body class="bg-light">
-<!-- Navigation Tabs -->
-<ul class="nav nav-tabs flex-column">
-    <li class="nav-item">
-        <a class="nav-link active" href="/discover">
-            <i class="fas fa-users"></i>
-            <span class="d-none d-md-inline"> Discover</span>
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="/chats">
-            <i class="fas fa-comments"></i>
-            <span class="d-none d-md-inline"> Chats</span>
-        </a>
-    </li>
-</ul>
+<body>
 
-<div class="container py-5">
-    <h1 class="text-center mb-4">Discover People</h1>
-
-    <!-- Блок ошибок -->
-    <div th:if="${error != null}" class="alert alert-info">
-        <span th:text="${error}">Анкеты закончились</span>
+<!-- Верхнее меню -->
+<nav class="top-navbar d-flex justify-content-between align-items-center">
+    <div class="logo animate__animated animate__fadeIn">Unio</div>
+    <div class="nav-links d-flex align-items-center">
+        <a href="/discover" class="animate__animated animate__fadeIn animate__delay-1s">Анкеты</a>
+        <a href="/chats" class="animate__animated animate__fadeIn animate__delay-1s">Чаты</a>
+        <a href="/profile" class="btn btn-outline-primary btn-sm rounded-pill ms-3 animate__animated animate__fadeIn animate__delay-2s">
+            <i class="fas fa-user me-1"></i> Профиль
+        </a>
     </div>
+</nav>
 
-    <!-- Profile Carousel -->
-    <div class="profile-container" id="profileCarousel">
-        <!-- Блок профиля (только если есть пользователи) -->
-        <div th:unless="${users.empty}">
-            <div class="profile-card"
-                 th:each="user, iterStat : ${users}"
-                 th:attr="data-index=${iterStat.index}"
-                 th:classappend="${iterStat.index != currentIndex} ? ' d-none'">
-                <img th:src="${user.photos != null and !user.photos.isEmpty()} ? ${user.photos[0].photoUrl} : '/images/default-profile.jpg'"
-                     class="profile-image" alt="Profile Photo">
-                <div class="profile-info">
-                    <div class="profile-name" th:text="${user.profile.name}"> </div>
-                    <div class="profile-details">
-                        <p th:text="${user.profile.age + ' years old'}">25 years old</p>
-                        <p th:text="${user.profile.city}">New York, USA</p>
-                        <p th:text="${user.profile.bio}">Short bio about the person...</p>
+<!-- Контент -->
+<div class="container py-5">
+    <h1 class="text-center mb-4 animate__animated animate__fadeInDown">Discover People</h1>
+
+    <div class="main-container">
+        <!-- Левая колонка - анкеты -->
+        <div class="profiles-column">
+            <div th:if="${error != null}" class="alert alert-info animate__animated animate__fadeIn" th:text="${error}">Анкеты закончились</div>
+
+            <div class="profile-container" id="profileCarousel">
+                <div th:if="${users != null and !users.empty}">
+                    <div class="progress-indicator animate__animated animate__fadeIn">
+                        Профиль <span th:text="${currentIndex + 1}">1</span> из <span th:text="${users.size()}">1</span>
                     </div>
-                    <div class="action-buttons">
-                        <form th:action="@{/like/{id}(id=${user.id})}" method="post" style="display:inline;">
-                            <button type="submit" class="btn btn-like flex-grow-1">
-                                <i class="fas fa-heart"></i> Like
+
+                    <div class="profile-card animate__animated animate__fadeIn"
+                         th:each="user, iterStat : ${users}"
+                         th:attr="data-index=${iterStat.index}"
+                         th:classappend="${iterStat.index != currentIndex} ? ' d-none'">
+                        <div class="floating-hearts" id="hearts-container-${iterStat.index}"></div>
+                        <div class="profile-image-container">
+                            <img th:src="${user.photos != null and !user.photos.isEmpty()} ? ${user.photos[0].photoUrl} : '/images/default-profile.jpg'"
+                                 class="profile-image" alt="Profile Photo">
+                            <div class="profile-badge">
+                                <i class="fas fa-star"></i> Популярный
+                            </div>
+                        </div>
+                        <div class="profile-info">
+                            <div class="profile-name-age">
+                                <h2 class="profile-name" th:text="${user.profile.name}"></h2>
+                                <span class="profile-age" th:text="${user.profile.age}"></span>
+                            </div>
+                            <div class="profile-location">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span th:text="${user.profile.city}"></span>
+                            </div>
+                            <div class="profile-bio" th:text="${user.profile.bio}"></div>
+<!--                            <div class="profile-tags">-->
+<!--                                <span class="profile-tag"><i class="fas fa-music me-1"></i> Музыка</span>-->
+<!--                                <span class="profile-tag"><i class="fas fa-utensils me-1"></i> Кулинария</span>-->
+<!--                                <span class="profile-tag"><i class="fas fa-plane me-1"></i> Путешествия</span>-->
+<!--                            </div>-->
+                        </div>
+                    </div>
+
+                    <div class="action-buttons animate__animated animate__fadeInUp">
+                        <button class="arrow-btn" onclick="prevProfile()" id="prevBtn">
+                            <i class="fas fa-chevron-left fa-lg"></i> Назад
+                        </button>
+
+                        <form th:action="@{/like/{id}(id=${users[currentIndex].id})}" method="post" style="display:inline;">
+                            <button type="submit" class="btn-like animate-bounce" id="likeBtn">
+                                <i class="fas fa-heart"></i>
                             </button>
                         </form>
-                        <a th:href="@{/chats/{id}(id=${user.id})}" class="btn btn-message flex-grow-1">
-                            <i class="fas fa-comment"></i> Message
-                        </a>
+
+                        <button class="arrow-btn" onclick="nextProfile()" id="nextBtn">
+                            Следующий <i class="fas fa-chevron-right fa-lg"></i>
+                        </button>
                     </div>
                 </div>
+
+                <div th:if="${users == null or users.empty}" class="empty-state animate__animated animate__fadeIn">
+                    <i class="fas fa-user-slash"></i>
+                    <h3>Анкеты закончились</h3>
+                    <p>Попробуйте изменить параметры поиска или зайдите позже, когда появятся новые пользователи</p>
+                    <a href="/discover" class="btn btn-primary">
+                        <i class="fas fa-redo me-2"></i> Сбросить фильтры
+                    </a>
+                </div>
             </div>
-            <div class="navigation-arrows">
-                <button class="arrow-btn" onclick="prevProfile()" id="prevBtn">
-                    <i class="fas fa-chevron-left fa-lg"></i> Назад
+        </div>
+
+        <!-- Правая колонка - фильтры -->
+        <div class="filters-column">
+            <form id="filtersForm" class="filters-card animate__animated animate__fadeInRight">
+                <div class="filters-title">
+                    <i class="fas fa-sliders-h me-2"></i> Фильтры
+                </div>
+
+                <div class="mb-4">
+                    <label for="citySelect" class="form-label">Город</label>
+                    <select class="form-select" id="citySelect" name="city">
+                        <option value="">Любой город</option>
+                        <option th:each="city : ${cities}"
+                                th:value="${city}"
+                                th:text="${city}"
+                                th:selected="${param.city != null and param.city.equals(city)}"></option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Пол</label>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="gender"
+                               id="genderAll" value=""
+                               th:checked="${param.gender == null or param.gender.isEmpty()}">
+                        <label class="form-check-label" for="genderAll">Все</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="gender"
+                               id="genderMale" value="MALE"
+                               th:checked="${param.gender != null and param.gender.equals('MALE')}">
+                        <label class="form-check-label" for="genderMale">Мужской</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="gender"
+                               id="genderFemale" value="FEMALE"
+                               th:checked="${param.gender != null and param.gender.equals('FEMALE')}">
+                        <label class="form-check-label" for="genderFemale">Женский</label>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Интересы</label>
+                    <div class="interests-container" style="max-height: 200px; overflow-y: auto; padding-right: 8px;">
+                        <div th:each="interest : ${allInterests}">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox"
+                                       th:id="'interest-' + ${interest}"
+                                       th:value="${interest}" name="interests"
+                                       th:checked="${param.interests != null and param.interests.contains(interest)}">
+                                <label class="form-check-label"
+                                       th:for="'interest-' + ${interest}"
+                                       th:text="${interest}"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 mt-3 py-2">
+                    <i class="fas fa-filter me-2"></i> Применить фильтры
                 </button>
-                <button class="arrow-btn" onclick="nextProfile()" id="nextBtn">
-                    Следующий <i class="fas fa-chevron-right fa-lg"></i>
-                </button>
-            </div>
+
+                <a href="/discover" class="btn btn-outline-secondary w-100 mt-2 py-2">
+                    <i class="fas fa-redo me-2"></i> Сбросить
+                </a>
+            </form>
         </div>
     </div>
 </div>
 
+<!-- JS -->
 <script th:inline="javascript">
-    const totalProfiles = [[${users.size()}]];
+    const totalProfiles = [[${users != null ? users.size() : 0}]];
     let currentIndex = [[${currentIndex}]];
+
+    // Добавляем эффект появления сердечек при лайке
+    function createHearts(containerId) {
+        const container = document.getElementById(`hearts-container-${containerId}`);
+        if (!container) return;
+
+        // Очищаем предыдущие сердечки
+        container.innerHTML = '';
+
+        // Создаем 10 сердечек в случайных местах
+        for (let i = 0; i < 10; i++) {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '<i class="fas fa-heart"></i>';
+
+            // Случайная позиция
+            const leftPos = Math.random() * 80 + 10; // 10-90% ширины
+            heart.style.left = `${leftPos}%`;
+            heart.style.top = `${Math.random() * 50 + 30}%`; // 30-80% высоты
+
+            // Случайная задержка анимации
+            heart.style.animationDelay = `${Math.random() * 0.5}s`;
+
+            container.appendChild(heart);
+        }
+    }
+
+    // Обработчик для кнопки лайка
+    document.getElementById('likeBtn')?.addEventListener('click', function() {
+        const currentContainerId = document.querySelector('.profile-card:not(.d-none)').getAttribute('data-index');
+        createHearts(currentContainerId);
+    });
+
+    // Плавный скролл наверх при смене профиля
+    function smoothScrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
 
     function updateProfile() {
         const cards = document.querySelectorAll('.profile-card');
         cards.forEach((card, idx) => {
-            card.classList.toggle('d-none', idx !== currentIndex);
+            if (idx === currentIndex) {
+                card.classList.remove('d-none');
+                card.classList.add('animate__fadeIn');
+            } else {
+                card.classList.add('d-none');
+                card.classList.remove('animate__fadeIn');
+            }
         });
 
-        document.getElementById('prevBtn').disabled = currentIndex === 0;
-        document.getElementById('nextBtn').disabled = currentIndex === totalProfiles - 1;
+        if (document.getElementById('prevBtn')) {
+            document.getElementById('prevBtn').disabled = currentIndex === 0;
+        }
+        if (document.getElementById('nextBtn')) {
+            document.getElementById('nextBtn').disabled = currentIndex === totalProfiles - 1;
+        }
+
+        // Обновляем индикатор прогресса
+        const progressIndicator = document.querySelector('.progress-indicator span:first-child');
+        if (progressIndicator) {
+            progressIndicator.textContent = currentIndex + 1;
+        }
+
+        // Плавный скролл наверх
+        smoothScrollToTop();
     }
 
     function nextProfile() {
@@ -222,37 +778,49 @@
         }
     }
 
-    // Swipe
-    let touchStartX = 0;
-    let touchEndX = 0;
-
-    document.getElementById('profileCarousel').addEventListener('touchstart', function(e) {
-        touchStartX = e.changedTouches[0].screenX;
-    }, false);
-
-    document.getElementById('profileCarousel').addEventListener('touchend', function(e) {
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-    }, false);
-
-    function handleSwipe() {
-        const swipeThreshold = 50;
-        if (touchStartX - touchEndX > swipeThreshold) {
-            nextProfile();
-        } else if (touchEndX - touchStartX > swipeThreshold) {
-            prevProfile();
-        }
+    if (totalProfiles > 0) {
+        updateProfile();
     }
 
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'ArrowRight') {
-            nextProfile();
-        } else if (event.key === 'ArrowLeft') {
-            prevProfile();
+    // Обработка формы фильтров
+    document.getElementById('filtersForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const params = new URLSearchParams();
+
+        // Добавляем все чекбоксы интересов
+        document.querySelectorAll('input[name="interests"]:checked').forEach(checkbox => {
+            params.append('interests', checkbox.value);
+        });
+
+        // Добавляем другие параметры
+        if (formData.get('city')) params.append('city', formData.get('city'));
+        if (formData.get('gender')) params.append('gender', formData.get('gender'));
+
+        window.location.href = window.location.pathname + '?' + params.toString();
+    });
+
+    // Эффект при скролле для навбара
+    window.addEventListener('scroll', function() {
+        const navbar = document.querySelector('.top-navbar');
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
         }
     });
 
-    updateProfile();
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', function() {
+        // Анимация для кнопки лайка
+        const likeBtn = document.getElementById('likeBtn');
+        if (likeBtn) {
+            setInterval(() => {
+                likeBtn.classList.toggle('animate-bounce');
+            }, 3000);
+        }
+    });
 </script>
 
 </body>

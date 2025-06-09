@@ -442,6 +442,19 @@
                 </div>
             </div>
 
+            <!-- Поле "Интересы" -->
+            <div class="form-group">
+                <label>Интересы</label>
+                <div class="interests-container">
+                    <th:block th:each="interest : ${interests}">
+                        <div class="interest-item">
+                            <input type="checkbox" th:id="${interest}" th:name="interests" th:value="${interest}">
+                            <label th:for="${interest}">[[${interest}]]</label>
+                        </div>
+                    </th:block>
+                </div>
+            </div>
+
             <button type="submit" class="btn btn-save">
                 <i class="fas fa-check"></i> Завершить создание профиля
             </button>
