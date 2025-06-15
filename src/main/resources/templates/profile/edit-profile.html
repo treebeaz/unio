@@ -281,6 +281,28 @@
                 height: 150px;
             }
         }
+
+        .interests-table {
+            display: table;
+            width: auto;
+            margin-top: 10px;
+        }
+        .interest-row {
+            display: table-row;
+        }
+        .interest-label, .interest-checkbox {
+            display: table-cell;
+            vertical-align: middle;
+            padding: 4px 12px 4px 0;
+        }
+        .interest-label {
+            text-align: left;
+            min-width: 140px;
+        }
+        .interest-checkbox {
+            text-align: center;
+            width: 40px;
+        }
     </style>
 </head>
 <body>
@@ -361,13 +383,17 @@
                 <h2><i class="fas fa-star"></i> Интересы</h2>
                 <div class="form-group">
                     <label>Выберите ваши интересы:</label>
-                    <div th:each="interest : ${allInterests}">
-                        <label>
-                            <input type="checkbox" th:value="${interest}"
-                                   th:checked="${userInterests.contains(interest)}"
-                                   name="interests" />
-                            <span th:text="${interest}"></span>
-                        </label>
+                    <div class="interests-table">
+                        <th:block th:each="interest : ${allInterests}">
+                            <div class="interest-row">
+                                <div class="interest-label" th:text="${interest}"></div>
+                                <div class="interest-checkbox">
+                                    <input type="checkbox" th:value="${interest}"
+                                           th:checked="${userInterests.contains(interest)}"
+                                           name="interests" />
+                                </div>
+                            </div>
+                        </th:block>
                     </div>
                 </div>
             </div>

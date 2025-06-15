@@ -335,6 +335,28 @@
                 padding-left: 35px !important;
             }
         }
+
+        .interests-table {
+            display: table;
+            width: auto;
+            margin-top: 10px;
+        }
+        .interest-row {
+            display: table-row;
+        }
+        .interest-label, .interest-checkbox {
+            display: table-cell;
+            vertical-align: middle;
+            padding: 4px 12px 4px 0;
+        }
+        .interest-label {
+            text-align: left;
+            min-width: 140px;
+        }
+        .interest-checkbox {
+            text-align: center;
+            width: 40px;
+        }
     </style>
 </head>
 <body>
@@ -445,11 +467,13 @@
             <!-- Поле "Интересы" -->
             <div class="form-group">
                 <label>Интересы</label>
-                <div class="interests-container">
+                <div class="interests-table">
                     <th:block th:each="interest : ${interests}">
-                        <div class="interest-item">
-                            <input type="checkbox" th:id="${interest}" th:name="interests" th:value="${interest}">
-                            <label th:for="${interest}">[[${interest}]]</label>
+                        <div class="interest-row">
+                            <div class="interest-label" th:text="${interest}"></div>
+                            <div class="interest-checkbox">
+                                <input type="checkbox" th:id="${interest}" th:name="interests" th:value="${interest}">
+                            </div>
                         </div>
                     </th:block>
                 </div>
